@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Install Lion - Root</string>
+    <string name="start_install">Start installing</string>
+    <string name="failed_read">Reading apk failed</string>
+    <string name="success_install">Installed succeed</string>
+    <string name="failed_install">Installed failed </string>
+
+</resources>
