@@ -1,4 +1,4 @@
-# Install-Lion-Roo
+# Install-Lion-Root
 
 ### fork form https://gitee.com/Bave/RootInstaller,add compatibility with content uri
 
