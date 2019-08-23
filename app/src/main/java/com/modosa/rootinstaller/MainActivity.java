@@ -26,11 +26,14 @@ public class MainActivity extends Activity {
     private boolean istemp = false;
     private String apkPath = null;
     private Uri uri;
+    boolean isenforce;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         int version = Build.VERSION.SDK_INT;
+        isenforce ="1".equals(ShellUtils.execWithRoot("getenforce")+"");
+        Log.e("isenforce",isenforce+"");
         Intent intent = getIntent();
         uri = intent.getData();
         if (uri != null) {
@@ -63,6 +66,9 @@ public class MainActivity extends Activity {
         if (apkPath != null) {
             final File apkFile = new File(apkPath);
             showToast(getString(R.string.start_install) + apkFile.getPath());
+            if(isenforce){
+                ShellUtils.execWithRoot("setenforce 0");
+            }
             new Thread(() -> {
                 if (ShellUtils.execWithRoot("pm install -r --user 0 \"" + apkPath + "\"") == 0) {
                     showToast(getApkName(apkPath) + " " + getString(R.string.success_install));
