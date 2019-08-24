@@ -5,4 +5,6 @@
     <string name="failed_read">读取apk失败</string>
     <string name="success_install">安装成功</string>
     <string name="failed_install">安装失败</string>
+    <string name="dialog_title">确认安装吗？</string>
+    <string name="items">以后不再确认</string>
 </resources>

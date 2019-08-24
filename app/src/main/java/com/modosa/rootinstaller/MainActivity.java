@@ -2,14 +2,17 @@ package com.modosa.rootinstaller;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ContextThemeWrapper;
 import android.widget.Toast;
 
 import androidx.core.app.ActivityCompat;
@@ -26,30 +29,58 @@ public class MainActivity extends Activity {
     private boolean istemp = false;
     private String apkPath = null;
     private Uri uri;
-    boolean isenforce;
+    private boolean isenforce;
+    private boolean needrequest;
+    private SharedPreferences sharedPreferences;
+    private SharedPreferences.Editor editor;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        int version = Build.VERSION.SDK_INT;
-        isenforce ="1".equals(ShellUtils.execWithRoot("getenforce")+"");
-        Log.e("isenforce",isenforce+"");
+        needrequest = Build.VERSION.SDK_INT >= 22;
+        init();
+    }
+
+    private void init() {
+        isenforce = "1".equals(ShellUtils.execWithRoot("getenforce") + "");
+        Log.e("isenforce", isenforce + "");
         Intent intent = getIntent();
         uri = intent.getData();
-        if (uri != null) {
-            Log.e("--getData--", uri + "");
-            String CONTENT = "content://";
-            String FILE = "file://";
-            if (uri.toString().contains(FILE)) {
-                apkPath = uri.getPath();
-                if (!(version < Build.VERSION_CODES.M)) {
-                    confirmPermission();
+
+        sharedPreferences = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE);
+        boolean needconfirm = sharedPreferences.getBoolean("needconfirm", true);
+
+        if (needconfirm) {
+            Context context = new ContextThemeWrapper(MainActivity.this, android.R.style.Theme_DeviceDefault_Dialog);
+            CharSequence[] items = new CharSequence[]{getString(R.string.items)};
+            boolean[] checkedItems = {false};
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(R.string.dialog_title);
+
+            builder.setMultiChoiceItems(items, checkedItems, (dialogInterface, i, b) -> {
+                if (b) {
+                    editor = sharedPreferences.edit();
+                    editor.putBoolean("needconfirm", false);
+                    editor.apply();
+                } else {
+                    editor = sharedPreferences.edit();
+                    editor.putBoolean("needconfirm", true);
+                    editor.apply();
                 }
-            } else if (uri.toString().contains(CONTENT)) {
-                apkPath = createApkFromUri(this);
-            }
+            });
+            builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                preInstall();
+                finish();
+            });
+            builder.setNegativeButton(android.R.string.no, (dialog, which) -> finish());
+            builder.setCancelable(false);
+            builder.show();
+
 
         } else {
+            preInstall();
             finish();
         }
     }
@@ -57,8 +88,27 @@ public class MainActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        startInstall();
-        finish();
+        if (needrequest) {
+            confirmPermission();
+        }
+    }
+
+    private void preInstall() {
+        if (uri != null) {
+            Log.e("--getData--", uri + "");
+            String CONTENT = "content://";
+            String FILE = "file://";
+            if (uri.toString().contains(FILE)) {
+                apkPath = uri.getPath();
+                startInstall();
+            } else if (uri.toString().contains(CONTENT)) {
+                apkPath = createApkFromUri(this);
+                startInstall();
+            }
+
+        } else {
+            finish();
+        }
     }
 
     private void startInstall() {
@@ -66,7 +116,7 @@ public class MainActivity extends Activity {
         if (apkPath != null) {
             final File apkFile = new File(apkPath);
             showToast(getString(R.string.start_install) + apkFile.getPath());
-            if(isenforce){
+            if (isenforce) {
                 ShellUtils.execWithRoot("setenforce 0");
             }
             new Thread(() -> {

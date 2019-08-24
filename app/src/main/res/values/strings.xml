@@ -5,5 +5,7 @@
     <string name="failed_read">Reading apk failed</string>
     <string name="success_install">Installed succeed</string>
     <string name="failed_install">Installed failed </string>
+    <string name="dialog_title">Confirm installation ?</string>
+    <string name="items">No longer confirmed in the future</string>
 
 </resources>
