@@ -27,37 +27,43 @@ import java.io.OutputStream;
 public class MainActivity extends Activity {
     private final String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
     private boolean istemp = false;
-    private String apkPath = null;
+
     private Uri uri;
-    private boolean isenforce;
     private boolean needrequest;
     private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
+    private String pkgInfo;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        needrequest = Build.VERSION.SDK_INT >= 22;
-        init();
-    }
 
-    private void init() {
-        isenforce = "1".equals(ShellUtils.execWithRoot("getenforce") + "");
-        Log.e("isenforce", isenforce + "");
         Intent intent = getIntent();
         uri = intent.getData();
 
+        needrequest = (Build.VERSION.SDK_INT >= 22) && ((uri + "").contains("file://"));
+
+        init();
+
+    }
+
+
+    private void init() {
+        String apkPath;
         sharedPreferences = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE);
         boolean needconfirm = sharedPreferences.getBoolean("needconfirm", true);
 
+        apkPath = preInstall();
+        pkgInfo = getApkInfo(apkPath);
         if (needconfirm) {
             Context context = new ContextThemeWrapper(MainActivity.this, android.R.style.Theme_DeviceDefault_Dialog);
             CharSequence[] items = new CharSequence[]{getString(R.string.items)};
             boolean[] checkedItems = {false};
 
             AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle(R.string.dialog_title);
+            builder.setTitle(getString(R.string.dialog_title) + " " + pkgInfo);
+
 
             builder.setMultiChoiceItems(items, checkedItems, (dialogInterface, i, b) -> {
                 if (b) {
@@ -71,7 +77,7 @@ public class MainActivity extends Activity {
                 }
             });
             builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                preInstall();
+                startInstall(apkPath);
                 finish();
             });
             builder.setNegativeButton(android.R.string.no, (dialog, which) -> finish());
@@ -80,7 +86,7 @@ public class MainActivity extends Activity {
 
 
         } else {
-            preInstall();
+            startInstall(apkPath);
             finish();
         }
     }
@@ -93,37 +99,43 @@ public class MainActivity extends Activity {
         }
     }
 
-    private void preInstall() {
+    private String preInstall() {
+        String apkPath = null;
         if (uri != null) {
             Log.e("--getData--", uri + "");
             String CONTENT = "content://";
             String FILE = "file://";
             if (uri.toString().contains(FILE)) {
+                confirmPermission();
                 apkPath = uri.getPath();
-                startInstall();
             } else if (uri.toString().contains(CONTENT)) {
                 apkPath = createApkFromUri(this);
-                startInstall();
             }
-
+            return apkPath;
         } else {
             finish();
+            return "";
         }
     }
 
-    private void startInstall() {
+    private void startInstall(String apkPath) {
         Log.d("Start install", apkPath + "");
         if (apkPath != null) {
             final File apkFile = new File(apkPath);
-            showToast(getString(R.string.start_install) + apkFile.getPath());
+
+            boolean isenforce = "1".equals(ShellUtils.execWithRoot("getenforce") + "");
+            Log.e("isenforce", isenforce + "");
+
             if (isenforce) {
                 ShellUtils.execWithRoot("setenforce 0");
             }
             new Thread(() -> {
+                showToast(getString(R.string.start_install) + apkFile.getPath());
+
                 if (ShellUtils.execWithRoot("pm install -r --user 0 \"" + apkPath + "\"") == 0) {
-                    showToast(getApkName(apkPath) + " " + getString(R.string.success_install));
+                    showToast(pkgInfo + " " + getString(R.string.success_install));
                 } else {
-                    showToast(getApkName(apkPath) + " " + getString(R.string.failed_install));
+                    showToast(pkgInfo + " " + getString(R.string.failed_install));
                 }
                 if (istemp) {
                     deleteSingleFile(apkFile);
@@ -132,6 +144,7 @@ public class MainActivity extends Activity {
             }).start();
         } else {
             showToast(getString(R.string.failed_read));
+            finish();
         }
     }
 
@@ -140,27 +153,28 @@ public class MainActivity extends Activity {
     }
 
     private void confirmPermission() {
-        int permissionWrite = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-        boolean judge = (permissionWrite == 0);
+        int permissionRead = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        boolean judge = (permissionRead == 0);
         if (!judge) {
             requestPermission();
         }
     }
 
 
-    private String getApkName(String apkSourcePath) {
+    private String getApkInfo(String apkSourcePath) {
         if (apkSourcePath == null) {
-            return null;
+            return "";
+        } else {
+            PackageManager pm = getPackageManager();
+            PackageInfo pkgInfo = pm.getPackageArchiveInfo(apkSourcePath, PackageManager.GET_ACTIVITIES);
+            System.out.println(pkgInfo);
+            if (pkgInfo != null) {
+                pkgInfo.applicationInfo.sourceDir = apkSourcePath;
+                pkgInfo.applicationInfo.publicSourceDir = apkSourcePath;
+                return pm.getApplicationLabel(pkgInfo.applicationInfo).toString();
+            }
+            return "";
         }
-        PackageManager pm = getPackageManager();
-        PackageInfo pkgInfo = pm.getPackageArchiveInfo(apkSourcePath, PackageManager.GET_ACTIVITIES);
-
-        if (pkgInfo != null) {
-            pkgInfo.applicationInfo.sourceDir = apkSourcePath;
-            pkgInfo.applicationInfo.publicSourceDir = apkSourcePath;
-            return pm.getApplicationLabel(pkgInfo.applicationInfo).toString();
-        }
-        return "";
     }
 
     private void showToast(final String text) {
