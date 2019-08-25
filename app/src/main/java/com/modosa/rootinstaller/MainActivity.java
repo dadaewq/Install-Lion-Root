@@ -171,7 +171,7 @@ public class MainActivity extends Activity {
             if (pkgInfo != null) {
                 pkgInfo.applicationInfo.sourceDir = apkSourcePath;
                 pkgInfo.applicationInfo.publicSourceDir = apkSourcePath;
-                return pm.getApplicationLabel(pkgInfo.applicationInfo).toString();
+                return pm.getApplicationLabel(pkgInfo.applicationInfo).toString()+"_"+pkgInfo.versionName+"("+pkgInfo.versionCode+")";
             }
             return "";
         }
