@@ -42,7 +42,7 @@ public class MainActivity extends Activity {
         Intent intent = getIntent();
         uri = intent.getData();
 
-        needrequest = (Build.VERSION.SDK_INT >= 22) && ((uri + "").contains("file://"));
+        needrequest = (Build.VERSION.SDK_INT >= 23) && ((uri + "").contains("file://"));
 
         init();
 
