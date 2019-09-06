@@ -1,5 +1,5 @@
 # Install-Lion-Root
 
-### fork form https://gitee.com/Bave/RootInstaller,add compatibility with content uri
+### fork form https://gitee.com/Bave/RootInstaller , add compatibility with content uri
 
 Install Apk With Root
