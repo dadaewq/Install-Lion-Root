@@ -12,6 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round">
         <activity
             android:name=".MainActivity"
+            android:enabled="true"
             android:excludeFromRecents="true"
             android:launchMode="singleTask"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
