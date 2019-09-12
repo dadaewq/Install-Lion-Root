@@ -119,20 +119,15 @@ public class MainActivity extends Activity {
     }
 
     private void startInstall(String apkPath) {
-        Log.d("Start install", apkPath + "");
+        Log.e("Start install", apkPath + "");
         if (apkPath != null) {
             final File apkFile = new File(apkPath);
 
-            boolean isenforce = "1".equals(ShellUtils.execWithRoot("getenforce") + "");
-            Log.e("isenforce", isenforce + "");
-
-            if (isenforce) {
-                ShellUtils.execWithRoot("setenforce 0");
-            }
             new Thread(() -> {
-                showToast(getString(R.string.start_install) + apkFile.getPath());
 
-                if (ShellUtils.execWithRoot("pm install -r --user 0 \"" + apkPath + "\"") == 0) {
+                showToast(getString(R.string.start_install) + " " + pkgInfo);
+
+                if (ShellUtils.execWithRoot("setenforce 0 && pm install -r --user 0 \"" + apkPath + "\"" + "\n") == 0) {
                     showToast(pkgInfo + " " + getString(R.string.success_install));
                 } else {
                     showToast(pkgInfo + " " + getString(R.string.failed_install));
@@ -171,7 +166,7 @@ public class MainActivity extends Activity {
             if (pkgInfo != null) {
                 pkgInfo.applicationInfo.sourceDir = apkSourcePath;
                 pkgInfo.applicationInfo.publicSourceDir = apkSourcePath;
-                return pm.getApplicationLabel(pkgInfo.applicationInfo).toString()+"_"+pkgInfo.versionName+"("+pkgInfo.versionCode+")";
+                return pm.getApplicationLabel(pkgInfo.applicationInfo) + "_" + pkgInfo.versionName + "(" + pkgInfo.versionCode + ")";
             }
             return "";
         }
@@ -206,7 +201,7 @@ public class MainActivity extends Activity {
     private void deleteSingleFile(File file) {
         if (file.exists() && file.isFile()) {
             if (file.delete()) {
-                Log.e("--DELETE--", "deleteSingleFile" + file.getAbsolutePath() + " OK！");
+                Log.e("-DELETE-", "==>" + file.getAbsolutePath() + " OK！");
             } else {
                 finish();
             }
