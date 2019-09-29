@@ -9,13 +9,13 @@ import java.io.File;
  * @author dadaewq
  */
 public class MainActivity extends AbstractInstallActivity {
-    private String apkpath;
+    private String apkSourcePath;
 
     @Override
     protected void startInstall(String apkpath) {
-        this.apkpath = apkpath;
-        if (this.apkpath != null) {
-            apkinfo = getApkPkgInfo(this.apkpath);
+        apkSourcePath = apkpath;
+        if (apkSourcePath != null) {
+            apkinfo = getApkPkgInfo(apkSourcePath);
             showToast(getString(R.string.install_start) + apkinfo[1]);
             new InstallApkTask().start();
         } else {
@@ -31,7 +31,7 @@ public class MainActivity extends AbstractInstallActivity {
 
     private void deleteCache() {
         if (istemp) {
-            deleteSingleFile(new File(apkpath));
+            deleteSingleFile(new File(apkSourcePath));
         }
     }
 
@@ -39,6 +39,7 @@ public class MainActivity extends AbstractInstallActivity {
         @Override
         public void run() {
             super.run();
+            Log.d("Start install", apkPath + "");
             String installcommand = "pm install -r " + "--user 0 \"" + apkpath + "\"";
             String[] result = ShellUtils.execWithRoot("setenforce 0 && " + installcommand);
             if ("0".equals(result[3])) {
