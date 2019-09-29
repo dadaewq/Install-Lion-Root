@@ -39,8 +39,8 @@ public class MainActivity extends AbstractInstallActivity {
         @Override
         public void run() {
             super.run();
-            Log.d("Start install", apkPath + "");
-            String installcommand = "pm install -r " + "--user 0 \"" + apkpath + "\"";
+            Log.d("Start install", apkSourcePath + "");
+            String installcommand = "pm install -r " + "--user 0 \"" + apkSourcePath + "\"";
             String[] result = ShellUtils.execWithRoot("setenforce 0 && " + installcommand);
             if ("0".equals(result[3])) {
                 deleteCache();
