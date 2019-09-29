@@ -15,6 +15,7 @@ public class MainActivity extends AbstractInstallActivity {
     protected void startInstall(String apkpath) {
         this.apkpath = apkpath;
         if (this.apkpath != null) {
+            apkinfo = getApkPkgInfo(this.apkpath);
             showToast(getString(R.string.install_start) + apkinfo[1]);
             new InstallApkTask().start();
         } else {

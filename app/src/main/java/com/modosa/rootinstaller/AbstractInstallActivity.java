@@ -192,7 +192,7 @@ public abstract class AbstractInstallActivity extends Activity {
         }
     }
 
-    private String[] getApkPkgInfo(String apkPath) {
+    String[] getApkPkgInfo(String apkPath) {
         if (apkPath == null) {
             return null;
         } else {
