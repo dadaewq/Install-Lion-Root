@@ -1,8 +1,8 @@
 # Install-Lion-Root
 
-### fork form https://gitee.com/Bave/RootInstaller , add compatibility with content uri
+### fork form [RootInstaller](https://gitee.com/Bave/RootInstaller) , add compatibility with content uri
 
 Install Apk With Root
 
-### Thanks https://github.com/bavelee/PokeInstaller
+### Thanks [PokeInstaller](https://github.com/bavelee/PokeInstaller)  
 
