@@ -15,6 +15,8 @@ package com.modosa.rootinstaller;
 //
 // You should have received a copy of the GNU General Public License
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.DataOutputStream;
@@ -24,81 +26,72 @@ import java.util.ArrayList;
 import java.util.List;
 
 class ShellUtils {
-    private static final List<Result> RESULTS = new ArrayList<>();
-    private static boolean DEBUG = true;
 
-    private static int exec(final String sh, final List<String> cmds, final Result result) {
+    private static String[] exec(final String sh, final List<String> cmds) {
+        final String[] myResult = new String[4];
         Process process;
         DataOutputStream stdin = null;
         OutputReader stdout = null;
         OutputReader stderr = null;
-        int resultCode = -1;
         try {
             process = Runtime.getRuntime().exec(sh);
             stdin = new DataOutputStream(process.getOutputStream());
-            if (RESULTS.size() > 0) {
-                stdout = new OutputReader(new BufferedReader(new InputStreamReader(process.getInputStream())),
-                        text -> {
-                            for (Result res : RESULTS) {
-                                LOG("[STDOUT] " + text);
-                                res.onStdout(text);
-                            }
-                        });
-                stderr = new OutputReader(new BufferedReader(new InputStreamReader(process.getErrorStream())),
-                        text -> {
-                            for (Result res : RESULTS) {
-                                LOG("[STDERR] " + text);
-                                res.onStdout(text);
-                            }
-                        });
-                stdout.start();
-                stderr.start();
-            }
+
+            ArrayList<String> errlist = new ArrayList<>();
+            StringBuilder stringBuilder = new StringBuilder();
+            stdout = new OutputReader(new BufferedReader(new InputStreamReader(process.getInputStream())),
+                    text -> {
+                        myResult[0] = text;
+                        Log.e("onStdout", myResult[0]);
+                    });
+            stderr = new OutputReader(new BufferedReader(new InputStreamReader(process.getErrorStream())),
+                    text -> {
+                        Log.e("onStderr", text);
+                        errlist.add(text);
+
+                    });
+
+            stdout.start();
+            stderr.start();
             for (String cmd : cmds) {
-                if (result != null) {
-                    result.onCommand(cmd);
-                    LOG("[COMMAND] " + cmd);
-                }
+                myResult[2] = cmd;
+
                 stdin.write(cmd.getBytes());
                 stdin.writeBytes("\n");
                 stdin.flush();
             }
             stdin.writeBytes("exit $?\n");
             stdin.flush();
-            resultCode = process.waitFor();
-            for (Result res : RESULTS) {
-                LOG("[RETURN] " + resultCode);
-                res.onFinish(resultCode);
+            int resultCode = process.waitFor();
+
+            myResult[3] = resultCode + "";
+            Log.e("resultCode", myResult[3] + "");
+
+            if (errlist.size() == 1) {
+                myResult[1] = errlist.get(0);
+            } else {
+                int num = errlist.size() < 6 ? errlist.size() : 5;
+
+                for (int i = 1; i < num; i++) {
+                    stringBuilder.append(errlist.get(i)).append("\n");
+                }
+                myResult[1] = stringBuilder + "";
             }
+
+            Log.e("onStderr===>", myResult[1]);
+
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+
             safeCancel(stderr);
             safeCancel(stdout);
             safeClose(stdout);
             safeClose(stderr);
             safeClose(stdin);
-        }
-        return resultCode;
-    }
 
-//    public static void setDebug(boolean DEBUG) {
-//        ShellUtils.DEBUG = DEBUG;
-//    }
-//
-//    public static void clearResultCallbacks() {
-//        RESULTS.clear();
-//    }
-//
-//    public static void addResultCallback(Result result) {
-//        RESULTS.add(result);
-//    }
-
-    private static void LOG(String text) {
-        String TAG = "ShellUtils";
-        if (DEBUG) {
-            android.util.Log.i(TAG, text);
         }
+        return myResult;
     }
 
     private static void safeCancel(OutputReader reader) {
@@ -121,45 +114,21 @@ class ShellUtils {
         }
     }
 
-    private static int exec(final List<String> cmds, final Result result, final boolean isRoot) {
+    private static String[] exec(final List<String> cmds, final boolean isRoot) {
         String sh = isRoot ? "su" : "sh";
-        return exec(sh, cmds, result);
+        return exec(sh, cmds);
     }
 
-//    public static int exec(final List<String> cmds, final boolean isRoot) {
-//        return exec(cmds, null, isRoot);
-//    }
 
-//    public static int exec(final String cmd, boolean isRoot) {
-//        return exec(cmd, null, isRoot);
-//    }
-
-    private static int exec(final String cmd, final Result result, boolean isRoot) {
+    private static String[] exec(final String cmd, boolean isRoot) {
         List<String> cmds = new ArrayList<>();
         cmds.add(cmd);
-        return exec(cmds, result, isRoot);
+        return exec(cmds, isRoot);
     }
 
-//    public static int exec(final String cmd) {
-//        return exec(cmd, null, false);
-//    }
 
-    public static int execWithRoot(final String cmd) {
-        return exec(cmd, null, true);
-    }
-
-//    public static int execWithRoot(final String cmd, final Result result) {
-//        return exec(cmd, result, true);
-//    }
-
-    interface Result {
-        void onStdout(String text);
-
-//        void onStderr(String text);
-
-        void onCommand(String command);
-
-        void onFinish(int resultCode);
+    public static String[] execWithRoot(final String cmd) {
+        return exec(cmd, true);
     }
 
     private interface Output {

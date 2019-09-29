@@ -1,213 +1,64 @@
 package com.modosa.rootinstaller;
 
-import android.Manifest;
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Bundle;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.widget.Toast;
 
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 
-public class MainActivity extends Activity {
-    private final String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
-    private boolean istemp = false;
-
-    private Uri uri;
-    private boolean needrequest;
-    private SharedPreferences sharedPreferences;
-    private SharedPreferences.Editor editor;
-    private String pkgInfo;
-
+/**
+ * @author dadaewq
+ */
+public class MainActivity extends AbstractInstallActivity {
+    private String apkpath;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        Intent intent = getIntent();
-        uri = intent.getData();
-
-        needrequest = (Build.VERSION.SDK_INT >= 23) && ((uri + "").contains("file://"));
-
-        init();
-
-    }
-
-
-    private void init() {
-        String apkPath;
-        sharedPreferences = getSharedPreferences(getPackageName(), Context.MODE_PRIVATE);
-        boolean needconfirm = sharedPreferences.getBoolean("needconfirm", true);
-
-        apkPath = preInstall();
-        pkgInfo = getApkInfo(apkPath);
-        if (needconfirm) {
-            Context context = new ContextThemeWrapper(MainActivity.this, android.R.style.Theme_DeviceDefault_Dialog);
-            CharSequence[] items = new CharSequence[]{getString(R.string.items)};
-            boolean[] checkedItems = {false};
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setTitle(getString(R.string.dialog_title) + " " + pkgInfo);
-
-
-            builder.setMultiChoiceItems(items, checkedItems, (dialogInterface, i, b) -> {
-                if (b) {
-                    editor = sharedPreferences.edit();
-                    editor.putBoolean("needconfirm", false);
-                    editor.apply();
-                } else {
-                    editor = sharedPreferences.edit();
-                    editor.putBoolean("needconfirm", true);
-                    editor.apply();
-                }
-            });
-            builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                startInstall(apkPath);
-                finish();
-            });
-            builder.setNegativeButton(android.R.string.no, (dialog, which) -> finish());
-            builder.setCancelable(false);
-            builder.show();
-
-
-        } else {
-            startInstall(apkPath);
-            finish();
-        }
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (needrequest) {
-            confirmPermission();
-        }
-    }
-
-    private String preInstall() {
-        String apkPath = null;
-        if (uri != null) {
-            Log.e("--getData--", uri + "");
-            String CONTENT = "content://";
-            String FILE = "file://";
-            if (uri.toString().contains(FILE)) {
-                confirmPermission();
-                apkPath = uri.getPath();
-            } else if (uri.toString().contains(CONTENT)) {
-                apkPath = createApkFromUri(this);
-            }
-            return apkPath;
-        } else {
-            finish();
-            return "";
-        }
-    }
-
-    private void startInstall(String apkPath) {
-        Log.e("Start install", apkPath + "");
-        if (apkPath != null) {
-            final File apkFile = new File(apkPath);
-
-            new Thread(() -> {
-
-                showToast(getString(R.string.start_install) + " " + pkgInfo);
-
-                if (ShellUtils.execWithRoot("setenforce 0 && pm install -r --user 0 \"" + apkPath + "\"" + "\n") == 0) {
-                    showToast(pkgInfo + " " + getString(R.string.success_install));
-                } else {
-                    showToast(pkgInfo + " " + getString(R.string.failed_install));
-                }
-                if (istemp) {
-                    deleteSingleFile(apkFile);
-                }
-                finish();
-            }).start();
+    protected void startInstall(String apkpath) {
+        this.apkpath = apkpath;
+        if (this.apkpath != null) {
+            showToast(getString(R.string.install_start) + apkinfo[1]);
+            new InstallApkTask().start();
         } else {
             showToast(getString(R.string.failed_read));
             finish();
         }
+
     }
 
-    private void requestPermission() {
-        ActivityCompat.requestPermissions(this, permissions, 0x233);
+    private void showErrToast(final String text) {
+        runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_LONG).show());
     }
 
-    private void confirmPermission() {
-        int permissionRead = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE);
-        boolean judge = (permissionRead == 0);
-        if (!judge) {
-            requestPermission();
+    private void deleteCache() {
+        if (istemp) {
+            deleteSingleFile(new File(apkpath));
         }
     }
 
+    private class InstallApkTask extends Thread {
+        @Override
+        public void run() {
+            super.run();
+            String installcommand = "pm install -r " + "--user 0 \"" + apkpath + "\"";
+            String[] result = ShellUtils.execWithRoot("setenforce 0 && " + installcommand);
+            if ("0".equals(result[3])) {
+                deleteCache();
+                showToast(apkinfo[1] + " " + getString(R.string.success_install));
+            } else if (result[1].contains("SELinux is disabled")) {
+                Log.e("ERROR=>", "SELinux is disabled,start another method");
 
-    private String getApkInfo(String apkSourcePath) {
-        if (apkSourcePath == null) {
-            return "";
-        } else {
-            PackageManager pm = getPackageManager();
-            PackageInfo pkgInfo = pm.getPackageArchiveInfo(apkSourcePath, PackageManager.GET_ACTIVITIES);
-            System.out.println(pkgInfo);
-            if (pkgInfo != null) {
-                pkgInfo.applicationInfo.sourceDir = apkSourcePath;
-                pkgInfo.applicationInfo.publicSourceDir = apkSourcePath;
-                return pm.getApplicationLabel(pkgInfo.applicationInfo) + "_" + pkgInfo.versionName + "(" + pkgInfo.versionCode + ")";
-            }
-            return "";
-        }
-    }
-
-    private void showToast(final String text) {
-        runOnUiThread(() -> Toast.makeText(MainActivity.this, text, Toast.LENGTH_SHORT).show());
-    }
-
-    private String createApkFromUri(Context context) {
-        istemp = true;
-        File tempFile = new File(context.getExternalCacheDir(), System.currentTimeMillis() + ".apk");
-        try {
-            InputStream is = context.getContentResolver().openInputStream(uri);
-            if (is != null) {
-                OutputStream fos = new FileOutputStream(tempFile);
-                byte[] buf = new byte[4096 * 1024];
-                int ret;
-                while ((ret = is.read(buf)) != -1) {
-                    fos.write(buf, 0, ret);
-                    fos.flush();
+                String[] result1 = ShellUtils.execWithRoot(installcommand);
+                if (result1[3] != null) {
+                    deleteCache();
                 }
-                fos.close();
-                is.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return tempFile.getAbsolutePath();
-    }
-
-    private void deleteSingleFile(File file) {
-        if (file.exists() && file.isFile()) {
-            if (file.delete()) {
-                Log.e("-DELETE-", "==>" + file.getAbsolutePath() + " OK！");
+                if ("0".equals(result1[3])) {
+                    showToast(apkinfo[1] + " " + getString(R.string.success_install));
+                } else {
+                    showErrToast(getString(R.string.failed_install) + "==>\t" + result1[1]);
+                }
             } else {
-                finish();
+                deleteCache();
+                showErrToast(getString(R.string.failed_install) + "==>\t" + result[1]);
             }
-        } else {
-            finish();
         }
     }
-
 }
