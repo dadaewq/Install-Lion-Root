@@ -1,4 +1,4 @@
-package com.modosa.rootinstaller;
+package com.modosa.rootinstaller.utils;
 // Copyright (C) 2018 Bave Lee
 // This file is part of Quick-Android.
 // https://github.com/Crixec/Quick-Android
@@ -25,7 +25,7 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-class ShellUtils {
+public class ShellUtils {
 
     private static String[] exec(final String sh, final List<String> cmds) {
         final String[] myResult = new String[4];

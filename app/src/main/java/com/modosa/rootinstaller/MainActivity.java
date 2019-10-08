@@ -1,7 +1,10 @@
 package com.modosa.rootinstaller;
 
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.modosa.rootinstaller.utils.ShellUtils;
 
 import java.io.File;
 
@@ -10,18 +13,27 @@ import java.io.File;
  */
 public class MainActivity extends AbstractInstallActivity {
     private String apkSourcePath;
+    private String pkgname;
 
     @Override
     protected void startInstall(String apkpath) {
         apkSourcePath = apkpath;
         if (apkSourcePath != null) {
             apkinfo = getApkPkgInfo(apkSourcePath);
-            showToast(getString(R.string.install_start) + apkinfo[1]);
+            showToast(String.format(getString(R.string.install_start), apkinfo[0]));
             new InstallApkTask().start();
         } else {
             showToast(getString(R.string.failed_read));
             finish();
         }
+
+    }
+
+    @Override
+    protected void startUninstall(String pkgname) {
+        this.pkgname = pkgname;
+        showToast("卸载中");
+        new UninstallApkTask().start();
 
     }
 
@@ -35,28 +47,40 @@ public class MainActivity extends AbstractInstallActivity {
         }
     }
 
+    private class UninstallApkTask extends Thread {
+        @Override
+        public void run() {
+            super.run();
+            Log.d("Start uninstall", pkgname);
+            String uninstallcommand = "pm uninstall " + "--user 0 \"" + pkgname + "\"";
+
+            String[] result = ShellUtils.execWithRoot(uninstallcommand);
+
+            if ("0".equals(result[3])) {
+                showToast(getString(R.string.success_uninstall));
+            } else {
+                showErrToast(getString(R.string.failed_uninstall) + "==>\t" + result[1]);
+            }
+
+        }
+    }
+
     private class InstallApkTask extends Thread {
         @Override
         public void run() {
             super.run();
             Log.d("Start install", apkSourcePath + "");
-            String installcommand = "pm install -r " + "--user 0 \"" + apkSourcePath + "\"";
-            String[] result = ShellUtils.execWithRoot("setenforce 0 && " + installcommand);
+            String uninstallcommand = "pm install -r " + "--user 0 \"" + apkSourcePath + "\"";
+            String[] result;
+            if (Build.VERSION.SDK_INT > 23) {
+                result = ShellUtils.execWithRoot("setenforce 0 && " + uninstallcommand);
+            } else {
+                result = ShellUtils.execWithRoot(uninstallcommand);
+            }
+
             if ("0".equals(result[3])) {
                 deleteCache();
-                showToast(apkinfo[1] + " " + getString(R.string.success_install));
-            } else if (result[1].contains("SELinux is disabled")) {
-                Log.e("ERROR=>", "SELinux is disabled,start another method");
-
-                String[] result1 = ShellUtils.execWithRoot(installcommand);
-                if (result1[3] != null) {
-                    deleteCache();
-                }
-                if ("0".equals(result1[3])) {
-                    showToast(apkinfo[1] + " " + getString(R.string.success_install));
-                } else {
-                    showErrToast(getString(R.string.failed_install) + "==>\t" + result1[1]);
-                }
+                showToast(String.format(getString(R.string.success_install), apkinfo[0]));
             } else {
                 deleteCache();
                 showErrToast(getString(R.string.failed_install) + "==>\t" + result[1]);

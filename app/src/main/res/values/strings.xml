@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Install Lion-Root</string>
-    <string name="install_start">Start installing</string>
+    <string name="install_start">Start installing  %1$s</string>
     <string name="failed_prase">Unable to parse</string>
     <string name="failed_read">Reading apk failed</string>
-    <string name="success_install">Installed succeed</string>
+    <string name="success_install"> %1$s Installed succeed</string>
     <string name="failed_install">Installed failed</string>
+    <string name="success_uninstall">Uninstalled succeed</string>
+    <string name="failed_uninstall">Uninstalled failed</string>
     <string name="dialog_install_title">Confirm installation</string>
-    <string name="items">No longer confirmed in the future</string>
-
+    <string name="dialog_uninstall_title">Uninstallation</string>
+    <string name="message_name">Name:</string>
+    <string name="message_packagename">Package Name:</string>
+    <string name="message_versionname">Version Name:</string>
+    <string name="message_versioncode">Version Code:</string>
+    <string name="message_uninstalConfirm">This operation is irrevocable\nConfirm uninstall?</string>
+    <string name="always_allow">Always Allow %1$s</string>
 </resources>

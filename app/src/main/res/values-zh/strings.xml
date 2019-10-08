@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">安装狮-Root</string>
-    <string name="install_start">开始安装</string>
+    <string name="install_start">开始安装  %1$s</string>
     <string name="failed_prase">无法解析</string>
     <string name="failed_read">读取apk失败</string>
-    <string name="success_install">安装成功</string>
+    <string name="success_install"> %1$s 安装成功</string>
     <string name="failed_install">安装失败</string>
+    <string name="success_uninstall">卸载成功</string>
+    <string name="failed_uninstall">卸载失败</string>
     <string name="dialog_install_title">确认安装</string>
-    <string name="items">以后不再确认</string>
+    <string name="dialog_uninstall_title">卸载</string>
+    <string name="message_name">名称：</string>
+    <string name="message_packagename">包名：</string>
+    <string name="message_versionname">版本名：</string>
+    <string name="message_versioncode">版本号：</string>
+    <string name="message_uninstalConfirm">此操作不可撤销\n确认卸载吗?</string>
+    <string name="always_allow">总是允许 %1$s</string>
 </resources>
