@@ -170,6 +170,10 @@ public abstract class AbstractInstallActivity extends Activity {
                     editor = sourceSp.edit();
                     editor.putBoolean(source[0], true);
                     editor.apply();
+                } else {
+                    editor = sourceSp.edit();
+                    editor.putBoolean(source[0], false);
+                    editor.apply();
                 }
             });
             builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
