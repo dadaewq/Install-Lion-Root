@@ -142,7 +142,8 @@ public abstract class AbstractInstallActivity extends Activity {
         } else {
 
             StringBuilder alertDialogMessage = new StringBuilder();
-            alertDialogMessage.append(getString(R.string.message_name))
+            alertDialogMessage.append(nl)
+                    .append(getString(R.string.message_name))
                     .append(apkinfo[0])
                     .append(nl)
                     .append(getString(R.string.message_packagename))
