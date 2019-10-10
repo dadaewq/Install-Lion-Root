@@ -55,7 +55,7 @@ public class ShellUtils {
             stderr.start();
             for (String cmd : cmds) {
                 myResult[2] = cmd;
-
+//                Log.e("cmd", myResult[2]);
                 stdin.write(cmd.getBytes());
                 stdin.writeBytes("\n");
                 stdin.flush();

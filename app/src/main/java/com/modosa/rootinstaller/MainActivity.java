@@ -71,19 +71,23 @@ public class MainActivity extends AbstractInstallActivity {
             super.run();
             Log.d("Start install", apkSourcePath + "");
             String uninstallcommand = "pm install -r " + "--user 0 \"" + apkSourcePath + "\"";
-            String[] result;
+            String[] resultSElinux = null;
             if (Build.VERSION.SDK_INT > 23) {
-                result = ShellUtils.execWithRoot("setenforce 0 && " + uninstallcommand);
-            } else {
-                result = ShellUtils.execWithRoot(uninstallcommand);
+                resultSElinux = ShellUtils.execWithRoot("setenforce 0");
             }
+            String[] result = ShellUtils.execWithRoot(uninstallcommand);
 
             if ("0".equals(result[3])) {
                 deleteCache();
                 showToast(String.format(getString(R.string.success_install), apkinfo[0]));
             } else {
                 deleteCache();
-                showErrToast(getString(R.string.failed_install) + "==>\t" + result[1]);
+                if (resultSElinux != null && !"0".equals(resultSElinux[3])) {
+                    showErrToast(getString(R.string.failed_install) + "==>\t" + resultSElinux[1] + "\t" + result[1]);
+                } else {
+                    showErrToast(getString(R.string.failed_install) + "==>\t" + result[1]);
+                }
+
             }
         }
     }
