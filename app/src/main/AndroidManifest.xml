@@ -15,10 +15,11 @@
             android:enabled="true"
             android:excludeFromRecents="true"
             android:noHistory="true"
-            android:theme="@android:style/Theme.DeviceDefault.Dialog">
+            android:theme="@android:style/Theme.DeviceDefault.Dialog.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.INSTALL_PACKAGE" />
+
 
                 <category android:name="android.intent.category.DEFAULT" />
 
