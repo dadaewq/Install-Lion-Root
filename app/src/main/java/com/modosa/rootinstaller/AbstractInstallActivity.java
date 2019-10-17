@@ -211,6 +211,7 @@ public abstract class AbstractInstallActivity extends Activity {
                 );
             }
 
+            alertDialogMessage.append(nl);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(getString(R.string.dialog_install_title));

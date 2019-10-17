@@ -8,8 +8,8 @@ android {
         applicationId "com.modosa.rootinstaller"
         minSdkVersion 19
         targetSdkVersion 29
-        versionCode 13
-        versionName "1.9"
+        versionCode 14
+        versionName "1.91"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

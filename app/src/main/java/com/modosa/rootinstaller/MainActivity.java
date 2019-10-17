@@ -3,11 +3,14 @@ package com.modosa.rootinstaller;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.os.Build;
 import android.util.Log;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import com.modosa.rootinstaller.utils.ShellUtils;
+import com.modosa.rootinstaller.utils.Utils;
 import com.modosa.rootinstaller.utils.apksource.ApkSource;
 import com.modosa.rootinstaller.utils.installer.ApkSourceBuilder;
 import com.modosa.rootinstaller.utils.installer.SAIPackageInstaller;
@@ -29,12 +32,14 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
     private long mOngoingSessionId;
     private File apkFile;
     private String pkgname;
+    private String apkPath;
 
 
     @Override
     public void startInstall(String apkPath) {
         Log.d("Start install", apkPath + "");
         if (apkPath != null) {
+            this.apkPath = apkPath;
             apkFile = new File(apkPath);
 
             ArrayList<File> files = new ArrayList<>();
@@ -92,37 +97,64 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
             return;
         }
         Log.d("status", status + "");
+
         switch (status) {
             case QUEUED:
             case INSTALLING:
                 break;
             case INSTALLATION_SUCCEED:
-                if (istemp) {
-                    deleteSingleFile(apkFile);
-                }
+                deleteCache();
                 showToast(String.format(getString(R.string.success_install), apkinfo[0]));
                 finish();
                 break;
             case INSTALLATION_FAILED:
-                if (istemp) {
-                    deleteSingleFile(apkFile);
-                }
-                copyErr(packageNameOrErrorDescription);
-                String err;
+
                 if (packageNameOrErrorDescription != null) {
                     if (packageNameOrErrorDescription.contains(getString(R.string.installer_error_root_no_root))) {
-                        err = packageNameOrErrorDescription;
-                        showErrToast(getString(R.string.failed_install) + " ==>\n" + err);
+                        String installcommand = "pm install -r " + "\"" + apkPath + "\"";
+                        String[] resultSElinux = null;
+                        if (Build.VERSION.SDK_INT > 23) {
+                            resultSElinux = ShellUtils.execWithRoot("setenforce 0");
+                        }
+                        String[] result = ShellUtils.execWithRoot(installcommand);
+
+                        if ("0".equals(result[3])) {
+                            deleteCache();
+                            showToast(String.format(getString(R.string.success_install), apkinfo[0]));
+                        } else {
+                            StringBuilder err = new StringBuilder();
+                            err.append(String.format("%s: %s %s | %s | Android %s \n\n", getString(R.string.installer_device), Build.BRAND, Build.MODEL, Utils.isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE))
+                                    .append(String.format("Command: %s\nExit code: %s\nOut:\n%s\n=============\nErr:\n%s", result[2], result[3], result[0], result[1]));
+
+                            deleteCache();
+                            if (resultSElinux != null && !"0".equals(resultSElinux[3])) {
+                                copyErr(err.append("\n") + resultSElinux[1]);
+                                showErrToast(getString(R.string.failed_install) + "," + getString(R.string.cpoy_error) + "==>\t" + resultSElinux[1] + "\t" + result[1]);
+                            } else {
+                                copyErr(err.toString());
+                                showErrToast(getString(R.string.failed_install) + "," + getString(R.string.cpoy_error) + "==>\t" + result[1]);
+                            }
+
+                        }
                     } else {
-                        err = packageNameOrErrorDescription.substring(packageNameOrErrorDescription.indexOf("Err:") + 4);
+                        deleteCache();
+                        copyErr(packageNameOrErrorDescription);
+                        String err = packageNameOrErrorDescription.substring(packageNameOrErrorDescription.indexOf("Err:") + 4);
                         showErrToast(getString(R.string.failed_install) + "," + getString(R.string.cpoy_error) + "\t" + err);
                     }
+                } else {
+                    deleteCache();
                 }
-
                 finish();
                 break;
             default:
                 finish();
+        }
+    }
+
+    private void deleteCache() {
+        if (istemp) {
+            deleteSingleFile(apkFile);
         }
     }
 
@@ -141,5 +173,4 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
 
         }
     }
-
 }
