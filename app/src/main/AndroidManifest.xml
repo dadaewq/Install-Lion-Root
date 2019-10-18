@@ -1,17 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.modosa.rootinstaller">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.miui.packageinstaller">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.DELETE_PACKAGES" />
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_launcher_round">
+        tools:targetApi="q">
         <activity
-            android:name=".MainActivity"
+            android:name=".UninstallerActivity"
+            android:enabled="true"
+            android:excludeFromRecents="true"
+            android:label="@string/uninstall_name"
+            android:noHistory="true"
+            android:theme="@android:style/Theme.DeviceDefault.Dialog.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.DELETE" />
+                <action android:name="android.intent.action.UNINSTALL_PACKAGE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="package" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".PackageInstallerActivity"
             android:enabled="true"
             android:excludeFromRecents="true"
             android:noHistory="true"
@@ -20,20 +39,13 @@
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.INSTALL_PACKAGE" />
 
-
                 <category android:name="android.intent.category.DEFAULT" />
 
                 <data android:scheme="file" />
                 <data android:scheme="content" />
                 <data android:mimeType="application/vnd.android.package-archive" />
             </intent-filter>
-            <intent-filter>
-                <action android:name="android.intent.action.DELETE" />
-                <action android:name="android.intent.action.UNINSTALL_PACKAGE" />
-
-                <category android:name="android.intent.category.DEFAULT" />
-                <data android:scheme="package" />
-            </intent-filter>
         </activity>
     </application>
+
 </manifest>

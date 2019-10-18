@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">安装狮-Root</string>
+    <string name="app_name">安装狮Root-MIUI</string>
+    <string name="uninstall_name">卸载</string>
     <string name="install_start">开始安装  %1$s</string>
     <string name="uninstall_start">开始卸载 %1$s</string>
     <string name="failed_prase">无法解析</string>

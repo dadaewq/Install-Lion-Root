@@ -5,11 +5,11 @@ android {
     buildToolsVersion "29.0.2"
     defaultConfig {
         resConfig 'zh'
-        applicationId "com.modosa.rootinstaller"
-        minSdkVersion 19
+        applicationId "com.miui.packageinstaller"
+        minSdkVersion 23
         targetSdkVersion 29
-        versionCode 14
-        versionName "1.91"
+        versionCode 19101801
+        versionName "19101801"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
