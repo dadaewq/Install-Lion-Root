@@ -6,6 +6,9 @@
 
 Install apk With Root
 
+## Download
+[Release](https://github.com/dadaewq/Install-Lion-Root/releases)
+     
 ## Thanks
 
 
