@@ -4,6 +4,11 @@
 
 Install apk With Root
 
+## Download
+[<img src="https://www.coolapk.com/static/images/header-logo.png"
+     alt="Get it on CoolApk"
+     height="80">](https://www.coolapk.com/apk/com.modosa.rootinstaller)
+
 
 ## Thanks
 
