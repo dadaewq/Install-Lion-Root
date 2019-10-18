@@ -2,10 +2,10 @@
 ## Install apk with Root
 
 
-### 替换MIUI自带的安装程序(com.miui.packageinstaller)
-### 需要核心破解
-### 直接覆盖安装即可
-### 切忌替换系统应用
+#### 替换MIUI自带的安装程序(com.miui.packageinstaller)
+#### 需要核心破解
+#### 直接覆盖安装即可
+#### 切忌替换系统应用
 
 
 
