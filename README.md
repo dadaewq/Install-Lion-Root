@@ -1,10 +1,15 @@
 # Install-Lion-Root-MIUI
-
-## 替换MIUI自带的安装程序
-
+## Install apk with Root
 ### Fork form [RootInstaller](https://gitee.com/Bave/RootInstaller) , add compatibility with content uri
 
-Install apk With Root
+### 替换MIUI自带的安装程序(com.miui.packageinstaller)
+### 需要核心破解
+### 直接覆盖安装即可
+### 切忌替换系统应用
+
+
+
+
 
 ## Download
 [Release](https://github.com/dadaewq/Install-Lion-Root/releases)
