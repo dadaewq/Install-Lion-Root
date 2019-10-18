@@ -4,5 +4,11 @@
 
 Install apk With Root
 
-### Thanks [PokeInstaller](https://github.com/bavelee/PokeInstaller)  
+
+## Thanks
+
+
+[PokeInstaller](https://github.com/bavelee/PokeInstaller)  
+
+[SAI](https://github.com/Aefyr/SAI)  
 
