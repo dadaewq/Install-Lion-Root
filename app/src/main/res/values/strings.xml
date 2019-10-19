@@ -11,7 +11,7 @@
     <string name="success_uninstall">Uninstalled succeed</string>
     <string name="failed_uninstall">Uninstalled failed</string>
     <string name="dialog_install_title">MIUI Installation</string>
-    <string name="dialog_uninstall_title">Uninstallation</string>
+    <string name="dialog_uninstall_title">MIUI Uninstallation</string>
     <string name="message_size">Size：%1$s</string>
     <string name="message_name">Name: %1$s</string>
     <string name="message_packagename">Package Name: %1$s</string>

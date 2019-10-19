@@ -11,7 +11,7 @@
     <string name="success_uninstall">卸载成功</string>
     <string name="failed_uninstall">卸载失败</string>
     <string name="dialog_install_title">MIUI安装</string>
-    <string name="dialog_uninstall_title">卸载</string>
+    <string name="dialog_uninstall_title">MIUI卸载</string>
     <string name="message_size">大小：%1$s</string>
     <string name="message_name">名称：%1$s</string>
     <string name="message_packagename">包名：%1$s</string>
