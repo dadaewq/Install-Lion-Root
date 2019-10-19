@@ -127,13 +127,6 @@ public abstract class AbstractInstallActivity extends Activity {
                     .append(nl)
                     .append(
                             String.format(
-                                    getString(R.string.message_size),
-                                    apkinfo[4]
-                            )
-                    )
-                    .append(nl)
-                    .append(
-                            String.format(
                                     getString(R.string.message_name),
                                     apkinfo[0]
                             )
@@ -162,10 +155,18 @@ public abstract class AbstractInstallActivity extends Activity {
                                 version[0],
                                 version[1]
                         )
-                );
+                )
+                        .append(nl);
             }
 
-            alertDialogMessage.append(nl);
+            alertDialogMessage
+                    .append(
+                            String.format(
+                                    getString(R.string.message_size),
+                                    apkinfo[4]
+                            )
+                    )
+                    .append(nl);
 
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle(getString(R.string.dialog_install_title));
