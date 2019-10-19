@@ -2,7 +2,8 @@
 
 ### Fork form [RootInstaller](https://gitee.com/Bave/RootInstaller) , add compatibility with content uri
 
-Install apk With Root
+## Extra
+[Install-Lion-Root-MIUI](https://github.com/dadaewq/Install-Lion-Root/tree/replaceMIUI)
 
 ## Download
 [<img src="https://www.coolapk.com/static/images/header-logo.png"
