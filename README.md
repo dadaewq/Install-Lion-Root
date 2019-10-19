@@ -1,6 +1,4 @@
 # Install-Lion-Root-MIUI
-## Install apk with Root
-
 
 #### 替换MIUI自带的安装程序(com.miui.packageinstaller)
 #### 需要核心破解
@@ -12,7 +10,7 @@
 
 
 ## Download
-[Release](https://github.com/dadaewq/Install-Lion-Root/releases)
+[Release](https://github.com/dadaewq/Install-Lion-Root/releases/tag/latest)
      
 ## Thanks
 
@@ -20,4 +18,8 @@
 [PokeInstaller](https://github.com/bavelee/PokeInstaller)  
 
 [SAI](https://github.com/Aefyr/SAI)  
+
+
+## Extra
+[Install-Lion-Root](https://github.com/dadaewq/Install-Lion-Root)
 
