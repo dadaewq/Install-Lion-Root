@@ -1,4 +1,4 @@
-package com.miui.packageinstaller;
+package com.android.packageinstaller;
 
 
 import android.content.ClipData;
@@ -7,8 +7,9 @@ import android.content.Context;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.miui.packageinstaller.utils.shell.Shell;
-import com.miui.packageinstaller.utils.shell.SuShell;
+import com.android.packageinstaller.utils.shell.Shell;
+import com.android.packageinstaller.utils.shell.SuShell;
+import com.miui.packageinstaller.R;
 
 import java.util.Objects;
 

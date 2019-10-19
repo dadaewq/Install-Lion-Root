@@ -1,4 +1,4 @@
-package com.miui.packageinstaller;
+package com.android.packageinstaller;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -9,12 +9,13 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import com.miui.packageinstaller.utils.ShellUtils;
-import com.miui.packageinstaller.utils.Utils;
-import com.miui.packageinstaller.utils.apksource.ApkSource;
-import com.miui.packageinstaller.utils.installer.ApkSourceBuilder;
-import com.miui.packageinstaller.utils.installer.SAIPackageInstaller;
-import com.miui.packageinstaller.utils.installer.rooted.RootedSAIPackageInstaller;
+import com.android.packageinstaller.utils.ShellUtils;
+import com.android.packageinstaller.utils.Utils;
+import com.android.packageinstaller.utils.apksource.ApkSource;
+import com.android.packageinstaller.utils.installer.ApkSourceBuilder;
+import com.android.packageinstaller.utils.installer.SAIPackageInstaller;
+import com.android.packageinstaller.utils.installer.rooted.RootedSAIPackageInstaller;
+import com.miui.packageinstaller.R;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -100,7 +101,7 @@ public class PackageInstallerActivity extends AbstractInstallActivity implements
 
                 if (packageNameOrErrorDescription != null) {
                     if (packageNameOrErrorDescription.contains(getString(R.string.installer_error_root_no_root))) {
-                        String installcommand = "pm install -r " + "\"" + apkPath + "\"";
+                        String installcommand = "pm install -r -i " + getPackageName() + " --user 0 " + "\"" + apkPath + "\"";
                         String[] resultSElinux = null;
                         if (Build.VERSION.SDK_INT > 23) {
                             resultSElinux = ShellUtils.execWithRoot("setenforce 0");

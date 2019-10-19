@@ -1,4 +1,4 @@
-package com.miui.packageinstaller.utils;
+package com.android.packageinstaller.utils;
 
 import android.util.Log;
 

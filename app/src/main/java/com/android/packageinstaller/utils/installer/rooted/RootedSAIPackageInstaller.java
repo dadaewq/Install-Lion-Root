@@ -1,11 +1,11 @@
-package com.miui.packageinstaller.utils.installer.rooted;
+package com.android.packageinstaller.utils.installer.rooted;
 
 import android.content.Context;
 
+import com.android.packageinstaller.utils.installer.ShellSAIPackageInstaller;
+import com.android.packageinstaller.utils.shell.Shell;
+import com.android.packageinstaller.utils.shell.SuShell;
 import com.miui.packageinstaller.R;
-import com.miui.packageinstaller.utils.installer.ShellSAIPackageInstaller;
-import com.miui.packageinstaller.utils.shell.Shell;
-import com.miui.packageinstaller.utils.shell.SuShell;
 
 public class RootedSAIPackageInstaller extends ShellSAIPackageInstaller {
     private static RootedSAIPackageInstaller sInstance;

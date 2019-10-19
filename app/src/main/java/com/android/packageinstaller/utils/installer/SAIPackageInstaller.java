@@ -1,4 +1,4 @@
-package com.miui.packageinstaller.utils.installer;
+package com.android.packageinstaller.utils.installer;
 
 import android.content.Context;
 import android.os.Handler;
@@ -8,7 +8,7 @@ import android.util.LongSparseArray;
 
 import androidx.annotation.Nullable;
 
-import com.miui.packageinstaller.utils.apksource.ApkSource;
+import com.android.packageinstaller.utils.apksource.ApkSource;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

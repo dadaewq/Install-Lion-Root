@@ -1,8 +1,8 @@
-package com.miui.packageinstaller.utils.installer;
+package com.android.packageinstaller.utils.installer;
 
 import android.content.Context;
 
-import com.miui.packageinstaller.utils.apksource.ApkSource;
+import com.android.packageinstaller.utils.apksource.ApkSource;
 
 class QueuedInstallation {
 

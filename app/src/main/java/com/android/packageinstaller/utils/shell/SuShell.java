@@ -1,12 +1,12 @@
-package com.miui.packageinstaller.utils.shell;
+package com.android.packageinstaller.utils.shell;
 
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.miui.packageinstaller.utils.IOUtils;
-import com.miui.packageinstaller.utils.Utils;
+import com.android.packageinstaller.utils.IOUtils;
+import com.android.packageinstaller.utils.Utils;
 
 import java.io.InputStream;
 import java.io.OutputStream;

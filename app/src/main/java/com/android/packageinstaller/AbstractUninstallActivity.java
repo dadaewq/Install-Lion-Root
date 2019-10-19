@@ -1,4 +1,4 @@
-package com.miui.packageinstaller;
+package com.android.packageinstaller;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -10,7 +10,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.miui.packageinstaller.utils.ApplicationLabelUtils;
+import com.android.packageinstaller.utils.ApplicationLabelUtils;
+import com.miui.packageinstaller.R;
 
 import java.util.Objects;
 
@@ -29,7 +30,10 @@ public abstract class AbstractUninstallActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String action = getIntent().getAction();
+
         if (Intent.ACTION_DELETE.equals(action) || Intent.ACTION_UNINSTALL_PACKAGE.equals(action)) {
+
+
             pkgname = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
             if (pkgname == null) {
                 showToast(getString(R.string.failed_prase));

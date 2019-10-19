@@ -1,4 +1,4 @@
-package com.miui.packageinstaller.utils.shell;
+package com.android.packageinstaller.utils.shell;
 
 import android.annotation.SuppressLint;
 

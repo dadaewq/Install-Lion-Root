@@ -1,4 +1,4 @@
-package com.miui.packageinstaller;
+package com.android.packageinstaller;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -24,8 +24,9 @@ import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import com.miui.packageinstaller.utils.ApplicationLabelUtils;
-import com.miui.packageinstaller.utils.FileSizeUtils;
+import com.android.packageinstaller.utils.ApplicationLabelUtils;
+import com.android.packageinstaller.utils.FileSizeUtils;
+import com.miui.packageinstaller.R;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -57,6 +58,7 @@ public abstract class AbstractInstallActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String action = getIntent().getAction();
+
         if (Intent.ACTION_VIEW.equals(action) || Intent.ACTION_INSTALL_PACKAGE.equals(action)) {
             uri = getIntent().getData();
 

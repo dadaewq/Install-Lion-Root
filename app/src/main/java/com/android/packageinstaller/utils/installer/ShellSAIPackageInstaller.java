@@ -1,4 +1,4 @@
-package com.miui.packageinstaller.utils.installer;
+package com.android.packageinstaller.utils.installer;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -10,11 +10,11 @@ import android.os.Build;
 import android.util.Log;
 import android.util.Pair;
 
+import com.android.packageinstaller.utils.Utils;
+import com.android.packageinstaller.utils.apksource.ApkSource;
+import com.android.packageinstaller.utils.shell.Shell;
 import com.miui.packageinstaller.BuildConfig;
 import com.miui.packageinstaller.R;
-import com.miui.packageinstaller.utils.Utils;
-import com.miui.packageinstaller.utils.apksource.ApkSource;
-import com.miui.packageinstaller.utils.shell.Shell;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Base class for installers that install packages via pm shell command, child classes must provide a Shell{@link com.miui.packageinstaller.utils.shell.Shell}
+ * Base class for installers that install packages via pm shell command, child classes must provide a Shell{@link com.android.packageinstaller.utils.shell.Shell}
  * Please note, that it's unsafe to use multiple ShellPackageInstaller instances at the same time because installation completion is determined by the ACTION_PACKAGE_ADDED broadcast
  */
 public abstract class ShellSAIPackageInstaller extends SAIPackageInstaller {

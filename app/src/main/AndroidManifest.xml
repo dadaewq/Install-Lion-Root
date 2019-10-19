@@ -4,8 +4,11 @@
     package="com.miui.packageinstaller">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.READ_INSTALL_SESSIONS" />
     <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.DELETE_PACKAGES" />
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
     <application
         android:allowBackup="true"
@@ -14,7 +17,7 @@
         android:requestLegacyExternalStorage="true"
         tools:targetApi="q">
         <activity
-            android:name=".UninstallerActivity"
+            android:name="com.android.packageinstaller.UninstallerActivity"
             android:enabled="true"
             android:excludeFromRecents="true"
             android:label="@string/uninstall_name"
@@ -30,12 +33,12 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PackageInstallerActivity"
+            android:name="com.android.packageinstaller.PackageInstallerActivity"
             android:enabled="true"
             android:excludeFromRecents="true"
             android:noHistory="true"
             android:theme="@android:style/Theme.DeviceDefault.Dialog.NoActionBar">
-            <intent-filter>
+            <intent-filter android:priority="1">
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.INSTALL_PACKAGE" />
 
@@ -44,6 +47,20 @@
                 <data android:scheme="file" />
                 <data android:scheme="content" />
                 <data android:mimeType="application/vnd.android.package-archive" />
+            </intent-filter>
+            <intent-filter android:priority="1">
+                <action android:name="android.intent.action.INSTALL_PACKAGE" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <data android:scheme="file" />
+                <data android:scheme="package" />
+                <data android:scheme="content" />
+            </intent-filter>
+            <intent-filter android:priority="1">
+                <action android:name="android.content.pm.action.CONFIRM_PERMISSIONS" />
+
+                <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
     </application>

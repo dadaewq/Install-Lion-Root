@@ -1,4 +1,4 @@
-package com.miui.packageinstaller.utils.apksource;
+package com.android.packageinstaller.utils.apksource;
 
 import java.io.InputStream;
 

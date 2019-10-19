@@ -1,4 +1,4 @@
-package com.miui.packageinstaller.utils.filedescriptor;
+package com.android.packageinstaller.utils.filedescriptor;
 
 import java.io.InputStream;
 

@@ -1,6 +1,6 @@
-package com.miui.packageinstaller.utils.apksource;
+package com.android.packageinstaller.utils.apksource;
 
-import com.miui.packageinstaller.utils.filedescriptor.FileDescriptor;
+import com.android.packageinstaller.utils.filedescriptor.FileDescriptor;
 
 import java.io.InputStream;
 import java.util.List;

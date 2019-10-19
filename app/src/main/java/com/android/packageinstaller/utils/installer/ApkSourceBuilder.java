@@ -1,10 +1,10 @@
-package com.miui.packageinstaller.utils.installer;
+package com.android.packageinstaller.utils.installer;
 
 
-import com.miui.packageinstaller.utils.apksource.ApkSource;
-import com.miui.packageinstaller.utils.apksource.DefaultApkSource;
-import com.miui.packageinstaller.utils.filedescriptor.FileDescriptor;
-import com.miui.packageinstaller.utils.filedescriptor.NormalFileDescriptor;
+import com.android.packageinstaller.utils.apksource.ApkSource;
+import com.android.packageinstaller.utils.apksource.DefaultApkSource;
+import com.android.packageinstaller.utils.filedescriptor.FileDescriptor;
+import com.android.packageinstaller.utils.filedescriptor.NormalFileDescriptor;
 
 import java.io.File;
 import java.util.ArrayList;
