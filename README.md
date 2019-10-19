@@ -4,6 +4,8 @@
 
 Install apk With Root
 
+[Install apk With Root-replaceMIUI](https://github.com/dadaewq/Install-Lion-Root/tree/replaceMIUI)
+
 ## Download
 [<img src="https://www.coolapk.com/static/images/header-logo.png"
      alt="Get it on CoolApk"
