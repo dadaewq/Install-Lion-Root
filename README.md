@@ -10,7 +10,7 @@
 
 
 ## Download
-[Release](https://github.com/dadaewq/Install-Lion-Root/releases)
+[Release](https://github.com/dadaewq/Install-Lion-Root/releases/tag/latest)
      
 ## Thanks
 
