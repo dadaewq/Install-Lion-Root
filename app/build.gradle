@@ -8,8 +8,8 @@ android {
         applicationId "com.miui.packageinstaller"
         minSdkVersion 23
         targetSdkVersion 29
-        versionCode 19101801
-        versionName "19101801"
+        versionCode 19101901
+        versionName "19101901"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

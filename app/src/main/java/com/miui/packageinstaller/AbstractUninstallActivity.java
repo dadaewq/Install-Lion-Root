@@ -38,7 +38,7 @@ public abstract class AbstractUninstallActivity extends Activity {
                 initUninstall();
             }
         } else {
-            showToast(getString(R.string.failed_prase)+" "+action);
+            showToast(getString(R.string.failed_prase) + " " + action);
             finish();
         }
 

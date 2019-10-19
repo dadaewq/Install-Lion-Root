@@ -1,6 +1,7 @@
 package com.miui.packageinstaller;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
@@ -13,16 +14,18 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
-import 	android.content.pm.PackageInstaller;
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.miui.packageinstaller.utils.ApplicationLabelUtils;
+import com.miui.packageinstaller.utils.FileSizeUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,6 +43,7 @@ public abstract class AbstractInstallActivity extends Activity {
     private final String nl = System.getProperty("line.separator");
     boolean istemp = false;
     String[] apkinfo;
+    private String[] source;
 
     private Uri uri;
     private boolean needrequest;
@@ -71,7 +75,7 @@ public abstract class AbstractInstallActivity extends Activity {
                 initInstall();
             }
         } else {
-            showToast(getString(R.string.failed_prase)+" "+action);
+            showToast(getString(R.string.failed_prase) + " " + action);
             finish();
         }
 
@@ -104,7 +108,8 @@ public abstract class AbstractInstallActivity extends Activity {
 
 
     private void initInstall() {
-        String[] source = checkInstallSource();
+        source = checkInstallSource();
+
         boolean allowsource = sourceSp.getBoolean(source[0], false);
         String apkPath = preInstall();
         cachePath = apkPath;
@@ -115,11 +120,17 @@ public abstract class AbstractInstallActivity extends Activity {
             startInstall(apkPath);
             finish();
         } else {
-
             String[] version = getExistedVersion(apkinfo[1]);
 
             StringBuilder alertDialogMessage = new StringBuilder();
             alertDialogMessage
+                    .append(nl)
+                    .append(
+                            String.format(
+                                    getString(R.string.message_size),
+                                    apkinfo[4]
+                            )
+                    )
                     .append(nl)
                     .append(
                             String.format(
@@ -251,11 +262,18 @@ public abstract class AbstractInstallActivity extends Activity {
                 showToast(getString(R.string.failed_prase));
                 finish();
             }
+
             apkinfo = getApkPkgInfo(apkPath);
             if (apkinfo != null) {
                 return apkPath;
             } else {
-                return null;
+
+                if (ContentResolver.SCHEME_FILE.equals(uri.getScheme()) && apkPath != null && getExistedVersion("moe.shizuku.redirectstorage") != null) {
+                    return checkSR(apkPath);
+                } else {
+                    return null;
+                }
+
             }
         } else {
             finish();
@@ -263,6 +281,24 @@ public abstract class AbstractInstallActivity extends Activity {
         }
     }
 
+    private String checkSR(@NonNull String apkPath) {
+        String prefix = Environment.getExternalStorageDirectory().getAbsolutePath();
+        if (apkPath.startsWith(prefix)) {
+            StringBuilder stringBuilder = new StringBuilder(apkPath);
+            @SuppressLint("SdCardPath") String toInsert = "/Android/data/" + source[0] + "/sdcard";
+            stringBuilder.insert(prefix.length(), toInsert);
+            apkPath = stringBuilder.toString();
+            Log.e("SRnewpath", apkPath);
+            apkinfo = getApkPkgInfo(apkPath);
+            if (apkinfo != null) {
+                return apkPath;
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
 
     protected abstract void startInstall(String apkPath);
 
@@ -329,7 +365,7 @@ public abstract class AbstractInstallActivity extends Activity {
 
                 return new String[]{pm.getApplicationLabel(pkgInfo.applicationInfo).toString(), pkgInfo.packageName, pkgInfo.versionName,
                         Build.VERSION.SDK_INT < 28 ?
-                                Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode())};
+                                Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode()), FileSizeUtils.getAutoFolderOrFileSize(apkPath)};
             }
             return null;
         }
