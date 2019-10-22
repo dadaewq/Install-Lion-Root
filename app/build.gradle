@@ -6,10 +6,10 @@ android {
     defaultConfig {
         resConfig 'zh'
         applicationId "com.modosa.rootinstaller"
-        minSdkVersion 19
+        minSdkVersion 22
         targetSdkVersion 29
-        versionCode 15
-        versionName "1.92"
+        versionCode 16
+        versionName "1.93"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

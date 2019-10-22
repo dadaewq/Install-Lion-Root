@@ -24,11 +24,11 @@ public class Utils {
 
     @SuppressLint("PrivateApi")
     @Nullable
-    private static String getSystemProperty(String key) {
+    private static String getSystemProperty() {
         try {
             return (String) Class.forName("android.os.SystemProperties")
                     .getDeclaredMethod("get", String.class)
-                    .invoke(null, key);
+                    .invoke(null, "ro.miui.ui.version.name");
         } catch (Exception e) {
             Log.w("SAIUtils", "Unable to use SystemProperties.get", e);
             return null;
@@ -37,7 +37,7 @@ public class Utils {
 
 
     public static boolean isMiui() {
-        return !TextUtils.isEmpty(getSystemProperty("ro.miui.ui.version.name"));
+        return !TextUtils.isEmpty(getSystemProperty());
     }
 
 

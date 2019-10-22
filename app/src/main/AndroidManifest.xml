@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.modosa.rootinstaller">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:requestLegacyExternalStorage="true"
-        android:roundIcon="@mipmap/ic_launcher_round">
+        android:roundIcon="@mipmap/ic_launcher_round"
+        tools:targetApi="q">
         <activity
             android:name=".MainActivity"
             android:enabled="true"
@@ -19,7 +22,6 @@
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
                 <action android:name="android.intent.action.INSTALL_PACKAGE" />
-
 
                 <category android:name="android.intent.category.DEFAULT" />
 
@@ -32,8 +34,10 @@
                 <action android:name="android.intent.action.UNINSTALL_PACKAGE" />
 
                 <category android:name="android.intent.category.DEFAULT" />
+
                 <data android:scheme="package" />
             </intent-filter>
         </activity>
     </application>
+
 </manifest>
