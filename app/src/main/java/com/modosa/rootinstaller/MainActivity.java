@@ -1,7 +1,5 @@
 package com.modosa.rootinstaller;
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -22,7 +20,6 @@ import com.modosa.rootinstaller.utils.shell.SuShell;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 
 /**
@@ -31,7 +28,6 @@ import java.util.Objects;
 public class MainActivity extends AbstractInstallActivity implements SAIPackageInstaller.InstallationStatusListener {
 
     private long mOngoingSessionId;
-    private File apkFile;
     private String pkgname;
     private String apkPath;
 
@@ -79,11 +75,7 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
         mInstaller.startInstallationSession(mOngoingSessionId);
     }
 
-    private void copyErr(String CMD) {
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clipData = ClipData.newPlainText(null, CMD);
-        Objects.requireNonNull(clipboard).setPrimaryClip(clipData);
-    }
+
 
     @Override
     public void onStatusChanged(long installationID, SAIPackageInstaller.InstallationStatus status, @Nullable String packageNameOrErrorDescription) {
@@ -151,11 +143,6 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
         }
     }
 
-    private void deleteCache() {
-        if (istemp) {
-            deleteSingleFile(apkFile);
-        }
-    }
 
     private class UninstallApkTask extends Thread {
         @Override
@@ -165,11 +152,11 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
             Looper.prepare();
             if (!SuShell.getInstance().isAvailable()) {
                 copyErr(String.format("%s\n\n%s\n%s", getString(R.string.dialog_uninstall_title), alertDialogMessage, getString(R.string.installer_error_root_no_root)));
-                showToast1(String.format(getString(R.string.failed_uninstall), pkgLable, getString(R.string.installer_error_root_no_root)));
+                showToast1(String.format(getString(R.string.failed_uninstall), packageLable, getString(R.string.installer_error_root_no_root)));
             } else {
                 Shell.Result uninstallationResult = SuShell.getInstance().exec(new Shell.Command("pm", "uninstall", pkgname));
                 if (0 == uninstallationResult.exitCode) {
-                    showToast0(String.format(getString(R.string.success_uninstall), pkgLable));
+                    showToast0(String.format(getString(R.string.success_uninstall), packageLable));
                 } else {
                     String saiVersion = "???";
                     try {
@@ -178,7 +165,7 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
                     }
                     String info = String.format("%s: %s %s | %s | Android %s | Install Lion-Root %s\n\n", getString(R.string.installer_device), Build.BRAND, Build.MODEL, Utils.isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE, saiVersion);
                     copyErr(info + uninstallationResult.toString());
-                    showToast1(String.format(getString(R.string.failed_uninstall), pkgLable, uninstallationResult.err));
+                    showToast1(String.format(getString(R.string.failed_uninstall), packageLable, uninstallationResult.err));
                 }
             }
             Looper.loop();

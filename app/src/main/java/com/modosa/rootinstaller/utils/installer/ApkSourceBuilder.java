@@ -23,7 +23,6 @@ public class ApkSourceBuilder {
         return this;
     }
 
-
     public ApkSource build() {
         ApkSource apkSource;
 
