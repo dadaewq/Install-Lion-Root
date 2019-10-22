@@ -394,9 +394,9 @@ public abstract class AbstractInstallActivity extends Activity {
         return (permissionRead == 0);
     }
 
-    void copyErr(String CMD) {
+    void copyErr(String Err) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clipData = ClipData.newPlainText(null, CMD);
+        ClipData clipData = ClipData.newPlainText(null, Err);
         Objects.requireNonNull(clipboard).setPrimaryClip(clipData);
     }
 
@@ -436,7 +436,7 @@ public abstract class AbstractInstallActivity extends Activity {
         }
     }
 
-    void deleteSingleFile(File file) {
+    private void deleteSingleFile(File file) {
         if (file.exists() && file.isFile()) {
             if (file.delete()) {
                 Log.e("-DELETE-", "==>" + file.getAbsolutePath() + " OK！");
