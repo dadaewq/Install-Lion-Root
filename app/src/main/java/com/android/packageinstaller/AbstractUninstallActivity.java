@@ -2,15 +2,14 @@ package com.android.packageinstaller;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.android.packageinstaller.utils.ApplicationLabelUtils;
+import com.android.packageinstaller.utils.AppInfoUtils;
 import com.miui.packageinstaller.R;
 
 import java.util.Objects;
@@ -22,75 +21,51 @@ import java.util.Objects;
 public abstract class AbstractUninstallActivity extends Activity {
 
     private final String nl = System.getProperty("line.separator");
-    String pkgLable;
+    String packageLable;
+    StringBuilder alertDialogMessage;
     private AlertDialog alertDialog;
-    private String pkgname;
+    private String pkgName;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         String action = getIntent().getAction();
-
         if (Intent.ACTION_DELETE.equals(action) || Intent.ACTION_UNINSTALL_PACKAGE.equals(action)) {
-
-
-            pkgname = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
-            if (pkgname == null) {
-                showToast(getString(R.string.failed_prase));
+            pkgName = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
+            if (pkgName == null) {
+                showToast0(getString(R.string.failed_prase));
                 finish();
             } else {
                 initUninstall();
             }
         } else {
-            showToast(getString(R.string.failed_prase) + " " + action);
+            showToast1(getString(R.string.failed_prase));
             finish();
         }
 
     }
 
-    private String[] getExistedVersion(String pkgname) {
-        PackageManager pm = getPackageManager();
-        ApplicationInfo applicationInfo = null;
-        try {
-            applicationInfo = pm.getApplicationInfo(pkgname, 0);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        if (applicationInfo == null) {
-            return null;
-        } else {
-            String apkPath = applicationInfo.sourceDir;
-            PackageInfo pkgInfo = pm.getPackageArchiveInfo(apkPath, PackageManager.GET_ACTIVITIES);
-            if (pkgInfo != null) {
-                pkgInfo.applicationInfo.sourceDir = apkPath;
-                pkgInfo.applicationInfo.publicSourceDir = apkPath;
-                return new String[]{pkgInfo.versionName,
-                        Build.VERSION.SDK_INT < 28 ? Integer.toString(pkgInfo.versionCode) : Long.toString(pkgInfo.getLongVersionCode())};
-            } else {
-                return null;
-            }
-        }
-
-    }
 
     private void initUninstall() {
-        String[] version = getExistedVersion(pkgname);
+        String[] version = AppInfoUtils.getApplicationVersion(this, pkgName);
 
-        pkgLable = ApplicationLabelUtils.getApplicationLabel(this, null, null, pkgname);
-
-        StringBuilder alertDialogMessage = new StringBuilder();
+        packageLable = AppInfoUtils.getApplicationLabel(this, pkgName);
+        if (AppInfoUtils.UNINSTALLED.equals(packageLable)) {
+            packageLable = "Uninstalled";
+        }
+        alertDialogMessage = new StringBuilder();
         alertDialogMessage
                 .append(
                         String.format(
                                 getString(R.string.message_name),
-                                pkgLable
+                                packageLable
                         )
                 )
                 .append(nl)
                 .append(
                         String.format(
                                 getString(R.string.message_packagename),
-                                pkgname
+                                pkgName
                         )
                 )
                 .append(nl);
@@ -104,17 +79,11 @@ public abstract class AbstractUninstallActivity extends Activity {
                     .append(nl);
         }
 
-        alertDialogMessage
-                .append(nl)
-                .append(nl)
-                .append(getString(R.string.message_uninstalConfirm));
-
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.dialog_uninstall_title));
-        builder.setMessage(alertDialogMessage);
+        builder.setMessage(alertDialogMessage + nl + nl + getString(R.string.message_uninstalConfirm));
         builder.setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
-            startUninstall(pkgname);
+            startUninstall(pkgName);
             finish();
         });
         builder.setNegativeButton(android.R.string.no, (dialogInterface, i) -> finish());
@@ -125,7 +94,6 @@ public abstract class AbstractUninstallActivity extends Activity {
 
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
@@ -134,19 +102,26 @@ public abstract class AbstractUninstallActivity extends Activity {
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
-
         if (alertDialog != null) {
             alertDialog.dismiss();
         }
 
     }
 
+    protected abstract void startUninstall(String pkgName);
 
-    protected abstract void startUninstall(String pkgname);
+    void copyErr(String err) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData clipData = ClipData.newPlainText(null, err);
+        Objects.requireNonNull(clipboard).setPrimaryClip(clipData);
+    }
 
-
-    void showToast(final String text) {
+    void showToast0(final String text) {
         runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_SHORT).show());
+    }
+
+    void showToast1(final String text) {
+        runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_LONG).show());
     }
 
 

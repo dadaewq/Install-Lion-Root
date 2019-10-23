@@ -1,40 +1,25 @@
 package com.android.packageinstaller;
 
 
-import android.content.ClipData;
-import android.content.ClipboardManager;
-import android.content.Context;
+import android.content.pm.PackageManager;
+import android.os.Build;
+import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.android.packageinstaller.utils.Utils;
 import com.android.packageinstaller.utils.shell.Shell;
 import com.android.packageinstaller.utils.shell.SuShell;
 import com.miui.packageinstaller.R;
 
-import java.util.Objects;
-
 public class UninstallerActivity extends AbstractUninstallActivity {
 
 
-    private String pkgname;
+    private String pkgName;
 
     @Override
-    protected void startUninstall(String pkgname) {
-        this.pkgname = pkgname;
-        showToast(String.format(getString(R.string.uninstall_start), pkgLable));
+    protected void startUninstall(String pkgName) {
+        this.pkgName = pkgName;
         new UninstallApkTask().start();
-
-    }
-
-    private void showErrToast(final String text) {
-        runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_LONG).show());
-    }
-
-
-    private void copyErr(String CMD) {
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clipData = ClipData.newPlainText(null, CMD);
-        Objects.requireNonNull(clipboard).setPrimaryClip(clipData);
     }
 
 
@@ -42,16 +27,27 @@ public class UninstallerActivity extends AbstractUninstallActivity {
         @Override
         public void run() {
             super.run();
-            Log.d("Start uninstall", pkgname);
-
-            Shell.Result uninstallationResult = SuShell.getInstance().exec(new Shell.Command("pm", "uninstall", pkgname));
-            if (0 == uninstallationResult.exitCode) {
-                showToast(getString(R.string.success_uninstall));
+            Log.d("Start uninstall", pkgName);
+            Looper.prepare();
+            if (!SuShell.getInstance().isAvailable()) {
+                copyErr(String.format("%s\n\n%s\n%s", getString(R.string.dialog_uninstall_title), alertDialogMessage, getString(R.string.installer_error_root_no_root)));
+                showToast1(String.format(getString(R.string.failed_uninstall), packageLable, getString(R.string.installer_error_root_no_root)));
             } else {
-                copyErr(uninstallationResult.err);
-                showErrToast(getString(R.string.failed_uninstall) + "," + getString(R.string.cpoy_error) + "\t" + uninstallationResult.err);
+                Shell.Result uninstallationResult = SuShell.getInstance().exec(new Shell.Command("pm", "uninstall", pkgName));
+                if (0 == uninstallationResult.exitCode) {
+                    showToast0(String.format(getString(R.string.success_uninstall), packageLable));
+                } else {
+                    String saiVersion = "???";
+                    try {
+                        saiVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                    } catch (PackageManager.NameNotFoundException ignore) {
+                    }
+                    String info = String.format("%s: %s %s | %s | Android %s | Install Lion-Root %s\n\n", getString(R.string.installer_device), Build.BRAND, Build.MODEL, Utils.isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE, saiVersion);
+                    copyErr(info + uninstallationResult.toString());
+                    showToast1(String.format(getString(R.string.failed_uninstall), packageLable, uninstallationResult.err));
+                }
             }
-
+            Looper.loop();
         }
     }
 }

@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Install Lion Root-MIUI</string>
-    <string name="uninstall_name">Uninstall</string>
-    <string name="install_start">Start installing  %1$s</string>
-    <string name="uninstall_start">Start uninstalling %1$s</string>
+    <string name="start_install">Start installing  %1$s</string>
     <string name="failed_prase">Unable to parse</string>
     <string name="failed_read">Reading apk failed</string>
     <string name="success_install"> %1$s Installed succeed</string>
-    <string name="failed_install">Installed failed</string>
-    <string name="success_uninstall">Uninstalled succeed</string>
-    <string name="failed_uninstall">Uninstalled failed</string>
+    <string name="failed_install">%1$s Installed failed,The error has been copied to the clipboard\n%2$s</string>
+    <string name="success_uninstall">%1$s Uninstalled succeed</string>
+    <string name="failed_uninstall">%1$s Uninstalled failed,The error has been copied to the clipboard\n%2$s</string>
     <string name="dialog_install_title">MIUI Installation</string>
     <string name="dialog_uninstall_title">MIUI Uninstallation</string>
     <string name="message_size">Size：%1$s</string>
@@ -19,10 +17,10 @@
     <string name="message_version_existed">Existed: %1$s (%2$s)</string>
     <string name="message_uninstalConfirm">This operation is irrevocable\nConfirm uninstallation?</string>
     <string name="always_allow">Always Allow %1$s</string>
-    <string name="cpoy_error">The error has been copied to the clipboard</string>
-    <string name="installer_error_shell">%s installer error:\n\n %s</string>
+    <string name="installsource_unkonwn">Unknown installation source</string>
+    <string name="installer_error_shell">%s installer error:\n\n%s</string>
     <string name="installer_device">Device</string>
     <string name="installer_error_unknown_apk_size">installer_error_unknown_apk_size</string>
     <string name="installer_error_root_no_root">Unable to acquire root access</string>
-
+    <string name="unknown">Unknown</string>
 </resources>

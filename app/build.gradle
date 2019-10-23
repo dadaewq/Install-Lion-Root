@@ -6,10 +6,10 @@ android {
     defaultConfig {
         resConfig 'zh'
         applicationId "com.miui.packageinstaller"
-        minSdkVersion 23
+        minSdkVersion 22
         targetSdkVersion 29
-        versionCode 19101904
-        versionName "19101904"
+        versionCode 19102301
+        versionName "19102301"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
