@@ -119,7 +119,7 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
     private void installByShellUtils() {
         String installcommand = "pm install -r " + "\"" + apkPath + "\"";
         String[] resultSElinux = null;
-        if (Build.VERSION.SDK_INT >= 23) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             resultSElinux = ShellUtils.execWithRoot("setenforce 0");
         }
         String[] result = ShellUtils.execWithRoot(installcommand);
