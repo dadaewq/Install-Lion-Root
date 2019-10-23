@@ -28,7 +28,7 @@ import java.util.List;
 public class MainActivity extends AbstractInstallActivity implements SAIPackageInstaller.InstallationStatusListener {
 
     private long mOngoingSessionId;
-    private String pkgname;
+    private String pkgName;
     private String apkPath;
 
     @Override
@@ -57,8 +57,8 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
     }
 
     @Override
-    protected void startUninstall(String pkgname) {
-        this.pkgname = pkgname;
+    protected void startUninstall(String pkgName) {
+        this.pkgName = pkgName;
         new UninstallApkTask().start();
     }
 
@@ -148,13 +148,13 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
         @Override
         public void run() {
             super.run();
-            Log.d("Start uninstall", pkgname);
+            Log.d("Start uninstall", pkgName);
             Looper.prepare();
             if (!SuShell.getInstance().isAvailable()) {
                 copyErr(String.format("%s\n\n%s\n%s", getString(R.string.dialog_uninstall_title), alertDialogMessage, getString(R.string.installer_error_root_no_root)));
                 showToast1(String.format(getString(R.string.failed_uninstall), packageLable, getString(R.string.installer_error_root_no_root)));
             } else {
-                Shell.Result uninstallationResult = SuShell.getInstance().exec(new Shell.Command("pm", "uninstall", pkgname));
+                Shell.Result uninstallationResult = SuShell.getInstance().exec(new Shell.Command("pm", "uninstall", pkgName));
                 if (0 == uninstallationResult.exitCode) {
                     showToast0(String.format(getString(R.string.success_uninstall), packageLable));
                 } else {
