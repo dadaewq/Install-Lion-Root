@@ -129,7 +129,12 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
             showToast0(String.format(getString(R.string.success_install), apkinfo[0]));
         } else {
             deleteCache();
-            StringBuilder err = new StringBuilder(String.format("%s: %s %s | %s | Android %s \n\n", getString(R.string.installer_device), Build.BRAND, Build.MODEL, Utils.isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE))
+            String saiVersion = "???";
+            try {
+                saiVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            } catch (PackageManager.NameNotFoundException ignore) {
+            }
+            StringBuilder err = new StringBuilder(String.format("%s: %s %s | %s | Android %s | Install Lion-Root %s\n\n", getString(R.string.installer_device), Build.BRAND, Build.MODEL, Utils.isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE, saiVersion))
                     .append(String.format("Command: %s\nExit code: %s\nOut:\n%s\n=============\nErr:\n%s", result[2], result[3], result[0], result[1]));
 
             if (resultSElinux != null && !"0".equals(resultSElinux[3])) {
