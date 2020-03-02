@@ -334,25 +334,6 @@ public abstract class AbstractInstallActivity extends Activity {
         }
     }
 
-//    private String checkSR(@NonNull String apkPath) {
-//        String prefix = Environment.getExternalStorageDirectory().getAbsolutePath();
-//        if (apkPath.startsWith(prefix)) {
-//            StringBuilder stringBuilder = new StringBuilder(apkPath);
-//            @SuppressLint("SdCardPath") String toInsert = "/Android/data/" + source[0] + "/sdcard";
-//            stringBuilder.insert(prefix.length(), toInsert);
-//            apkPath = stringBuilder.toString();
-//            Log.e("SRnewpath", apkPath);
-//            apkinfo = AppInfoUtils.getApkInfo(this, apkPath);
-//            if (apkinfo != null) {
-//                return apkPath;
-//            } else {
-//                return null;
-//            }
-//        } else {
-//            return null;
-//        }
-//    }
-
     protected abstract void startInstall(String apkPath);
 
     protected abstract void startUninstall(String pkgName);
