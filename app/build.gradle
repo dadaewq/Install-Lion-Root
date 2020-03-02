@@ -29,15 +29,6 @@ android {
         checkReleaseBuilds false
         abortOnError false
     }
-    flavorDimensions 'version'
-    productFlavors {
-        MIUI {
-            applicationId 'com.miui.packageinstaller'
-            versionNameSuffix '-MIUI'
-        }
-        normal {
-        }
-    }
 
     android.applicationVariants.all { variant ->
         variant.outputs.all {
