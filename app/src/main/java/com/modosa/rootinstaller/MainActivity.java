@@ -76,7 +76,6 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
     }
 
 
-
     @Override
     public void onStatusChanged(long installationID, SAIPackageInstaller.InstallationStatus status, @Nullable String packageNameOrErrorDescription) {
         if (installationID != mOngoingSessionId) {

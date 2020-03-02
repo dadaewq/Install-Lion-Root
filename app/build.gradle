@@ -2,14 +2,14 @@ apply plugin: 'com.android.application'
 
 android {
     compileSdkVersion 29
-    buildToolsVersion "29.0.2"
+    buildToolsVersion "29.0.3"
     defaultConfig {
         resConfig 'zh'
         applicationId "com.modosa.rootinstaller"
         minSdkVersion 22
         targetSdkVersion 29
-        versionCode 16
-        versionName "1.93"
+        versionCode 17
+        versionName "2.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -29,9 +29,24 @@ android {
         checkReleaseBuilds false
         abortOnError false
     }
+    flavorDimensions 'version'
+    productFlavors {
+        MIUI {
+            applicationId 'com.miui.packageinstaller'
+            versionNameSuffix '-MIUI'
+        }
+        normal {
+        }
+    }
+
+    android.applicationVariants.all { variant ->
+        variant.outputs.all {
+            outputFileName = "${applicationId}_${defaultConfig.getVersionCode()}_${versionName}.apk"
+        }
+    }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'androidx.core:core:1.1.0'
+    implementation 'androidx.core:core:1.2.0'
 }

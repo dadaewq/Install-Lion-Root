@@ -1,7 +1,6 @@
 package com.modosa.rootinstaller;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ClipData;
@@ -11,19 +10,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.modosa.rootinstaller.utils.AppInfoUtils;
+import com.modosa.rootinstaller.utils.ContentUriUtils;
+import com.modosa.rootinstaller.utils.PraseContentUtil;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -48,16 +46,15 @@ public abstract class AbstractInstallActivity extends Activity {
     private String[] source;
     private Uri uri;
     private boolean istemp = false;
-    private boolean needrequest;
     private SharedPreferences sourceSp;
     private SharedPreferences.Editor editor;
     private AlertDialog alertDialog;
-    private String cachePath;
-    private String pkgName;
+    private String cachePath, pkgName, referrer;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         String action = getIntent().getAction();
         if (Intent.ACTION_DELETE.equals(action) || Intent.ACTION_UNINSTALL_PACKAGE.equals(action)) {
             pkgName = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
@@ -71,19 +68,14 @@ public abstract class AbstractInstallActivity extends Activity {
             uri = getIntent().getData();
 
             assert uri != null;
-            needrequest = (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) && (ContentResolver.SCHEME_FILE.equals(uri.getScheme()));
 
             sourceSp = getSharedPreferences("allowsource", Context.MODE_PRIVATE);
-            if (needrequest) {
-                if (checkPermission()) {
-                    needrequest = false;
-                    initInstall();
-                } else {
-                    requestPermission();
-                }
-            } else {
+            if (checkPermission()) {
                 initInstall();
+            } else {
+                requestPermission();
             }
+
         }
 
     }
@@ -122,6 +114,7 @@ public abstract class AbstractInstallActivity extends Activity {
                     .append(nl);
         }
 
+//        AlertDialog.Builder builder = new AlertDialog.Builder(new ContextThemeWrapper(this, R.style.AppTheme));
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(getString(R.string.dialog_uninstall_title));
         builder.setMessage(alertDialogMessage + nl + nl + getString(R.string.message_uninstalConfirm));
@@ -143,6 +136,7 @@ public abstract class AbstractInstallActivity extends Activity {
         boolean allowsource = sourceSp.getBoolean(source[0], false);
         String apkPath = preInstall();
         cachePath = apkPath;
+        Log.e("cachePath", cachePath);
         if (apkPath == null) {
             showToast0(getString(R.string.failed_prase));
             finish();
@@ -253,7 +247,7 @@ public abstract class AbstractInstallActivity extends Activity {
         final String fromPkgLabel;
         final String fromPkgName;
 
-        String referrer = reflectGetReferrer();
+        referrer = reflectGetReferrer();
         if (referrer != null) {
             fromPkgName = referrer;
         } else {
@@ -276,21 +270,11 @@ public abstract class AbstractInstallActivity extends Activity {
         return new String[]{fromPkgName, fromPkgLabel};
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (needrequest) {
-            if (checkPermission()) {
-                initInstall();
-            } else {
-                requestPermission();
-            }
-        }
-    }
 
     @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
+
         if (istemp && (cachePath != null)) {
             deleteSingleFile(new File(cachePath));
         }
@@ -300,6 +284,15 @@ public abstract class AbstractInstallActivity extends Activity {
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (checkPermission()) {
+            initInstall();
+        } else {
+            requestPermission();
+        }
+    }
+
     private String preInstall() {
         String apkPath = null;
         if (uri != null) {
@@ -307,7 +300,24 @@ public abstract class AbstractInstallActivity extends Activity {
             if (ContentResolver.SCHEME_FILE.equals(uri.getScheme())) {
                 apkPath = uri.getPath();
             } else if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
-                apkPath = createApkFromUri(this);
+                File file = PraseContentUtil.getSomeFileFromReferrerAndUri(referrer, uri);
+                if (file != null) {
+                    apkPath = file.getPath();
+                    Log.e("filegetPath", file.getPath());
+                } else {
+                    try {
+                        apkPath = ContentUriUtils.getPath(this, uri);
+                        Log.e("ContentUriUtilsPath", apkPath);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        apkPath = null;
+                    }
+
+                }
+
+                if (apkPath == null) {
+                    apkPath = createApkFromUri(this);
+                }
             } else {
                 showToast0(getString(R.string.failed_prase));
                 finish();
@@ -316,13 +326,7 @@ public abstract class AbstractInstallActivity extends Activity {
             if (apkinfo != null) {
                 return apkPath;
             } else {
-
-                if (ContentResolver.SCHEME_FILE.equals(uri.getScheme()) && apkPath != null && AppInfoUtils.getApplicationVersion(this, "moe.shizuku.redirectstorage") != null) {
-                    return checkSR(apkPath);
-                } else {
-                    return null;
-                }
-
+                return null;
             }
         } else {
             finish();
@@ -330,24 +334,24 @@ public abstract class AbstractInstallActivity extends Activity {
         }
     }
 
-    private String checkSR(@NonNull String apkPath) {
-        String prefix = Environment.getExternalStorageDirectory().getAbsolutePath();
-        if (apkPath.startsWith(prefix)) {
-            StringBuilder stringBuilder = new StringBuilder(apkPath);
-            @SuppressLint("SdCardPath") String toInsert = "/Android/data/" + source[0] + "/sdcard";
-            stringBuilder.insert(prefix.length(), toInsert);
-            apkPath = stringBuilder.toString();
-            Log.e("SRnewpath", apkPath);
-            apkinfo = AppInfoUtils.getApkInfo(this, apkPath);
-            if (apkinfo != null) {
-                return apkPath;
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
-    }
+//    private String checkSR(@NonNull String apkPath) {
+//        String prefix = Environment.getExternalStorageDirectory().getAbsolutePath();
+//        if (apkPath.startsWith(prefix)) {
+//            StringBuilder stringBuilder = new StringBuilder(apkPath);
+//            @SuppressLint("SdCardPath") String toInsert = "/Android/data/" + source[0] + "/sdcard";
+//            stringBuilder.insert(prefix.length(), toInsert);
+//            apkPath = stringBuilder.toString();
+//            Log.e("SRnewpath", apkPath);
+//            apkinfo = AppInfoUtils.getApkInfo(this, apkPath);
+//            if (apkinfo != null) {
+//                return apkPath;
+//            } else {
+//                return null;
+//            }
+//        } else {
+//            return null;
+//        }
+//    }
 
     protected abstract void startInstall(String apkPath);
 
