@@ -22,5 +22,6 @@
     <string name="installer_device">设备</string>
     <string name="installer_error_unknown_apk_size">无法获得APK大小</string>
     <string name="installer_error_root_no_root">无法获取Root权限</string>
+    <string name="launch_name">启动应用</string>
     <string name="unknown">未知</string>
 </resources>

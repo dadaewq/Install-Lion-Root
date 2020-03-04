@@ -1,4 +1,4 @@
-package com.modosa.rootinstaller.utils.installer;
+package com.modosa.rootinstaller.util.installer;
 
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
@@ -12,9 +12,9 @@ import android.util.Pair;
 
 import com.modosa.rootinstaller.BuildConfig;
 import com.modosa.rootinstaller.R;
-import com.modosa.rootinstaller.utils.Utils;
-import com.modosa.rootinstaller.utils.apksource.ApkSource;
-import com.modosa.rootinstaller.utils.shell.Shell;
+import com.modosa.rootinstaller.util.Utils;
+import com.modosa.rootinstaller.util.apksource.ApkSource;
+import com.modosa.rootinstaller.util.shell.Shell;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Base class for installers that install packages via pm shell command, child classes must provide a Shell{@link com.modosa.rootinstaller.utils.shell.Shell}
+ * Base class for installers that install packages via pm shell command, child classes must provide a Shell{@link com.modosa.rootinstaller.util.shell.Shell}
  * Please note, that it's unsafe to use multiple ShellPackageInstaller instances at the same time because installation completion is determined by the ACTION_PACKAGE_ADDED broadcast
  */
 public abstract class ShellSAIPackageInstaller extends SAIPackageInstaller {
@@ -120,8 +120,8 @@ public abstract class ShellSAIPackageInstaller extends SAIPackageInstaller {
 
     private int createSession() throws RuntimeException {
         ArrayList<Shell.Command> commandsToAttempt = new ArrayList<>();
-        commandsToAttempt.add(new Shell.Command("pm", "install-create", "-r", "--install-location", "0", "-i", getShell().makeLiteral(BuildConfig.APPLICATION_ID)));
-        commandsToAttempt.add(new Shell.Command("pm", "install-create", "-r", "-i", getShell().makeLiteral(BuildConfig.APPLICATION_ID)));
+        commandsToAttempt.add(new Shell.Command("pm", "install-create", "-r", "-d", "--user 0", "--install-location", "0", "-i", getShell().makeLiteral(BuildConfig.APPLICATION_ID)));
+        commandsToAttempt.add(new Shell.Command("pm", "install-create", "-r", "-d", "--user 0", "-i", getShell().makeLiteral(BuildConfig.APPLICATION_ID)));
 
         List<Pair<Shell.Command, String>> attemptedCommands = new ArrayList<>();
 

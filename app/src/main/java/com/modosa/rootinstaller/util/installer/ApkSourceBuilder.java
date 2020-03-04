@@ -1,10 +1,10 @@
-package com.modosa.rootinstaller.utils.installer;
+package com.modosa.rootinstaller.util.installer;
 
 
-import com.modosa.rootinstaller.utils.apksource.ApkSource;
-import com.modosa.rootinstaller.utils.apksource.DefaultApkSource;
-import com.modosa.rootinstaller.utils.filedescriptor.FileDescriptor;
-import com.modosa.rootinstaller.utils.filedescriptor.NormalFileDescriptor;
+import com.modosa.rootinstaller.util.apksource.ApkSource;
+import com.modosa.rootinstaller.util.apksource.DefaultApkSource;
+import com.modosa.rootinstaller.util.filedescriptor.FileDescriptor;
+import com.modosa.rootinstaller.util.filedescriptor.NormalFileDescriptor;
 
 import java.io.File;
 import java.util.ArrayList;

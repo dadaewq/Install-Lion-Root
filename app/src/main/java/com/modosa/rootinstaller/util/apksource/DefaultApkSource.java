@@ -1,6 +1,6 @@
-package com.modosa.rootinstaller.utils.apksource;
+package com.modosa.rootinstaller.util.apksource;
 
-import com.modosa.rootinstaller.utils.filedescriptor.FileDescriptor;
+import com.modosa.rootinstaller.util.filedescriptor.FileDescriptor;
 
 import java.io.InputStream;
 import java.util.List;

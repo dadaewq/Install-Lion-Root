@@ -22,5 +22,6 @@
     <string name="installer_device">Device</string>
     <string name="installer_error_unknown_apk_size">installer_error_unknown_apk_size</string>
     <string name="installer_error_root_no_root">Unable to acquire root access</string>
+    <string name="launch_name">Run App</string>
     <string name="unknown">Unknown</string>
 </resources>

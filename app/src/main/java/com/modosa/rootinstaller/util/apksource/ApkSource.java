@@ -1,4 +1,4 @@
-package com.modosa.rootinstaller.utils.apksource;
+package com.modosa.rootinstaller.util.apksource;
 
 import java.io.InputStream;
 

@@ -1,12 +1,12 @@
-package com.modosa.rootinstaller.utils.shell;
+package com.modosa.rootinstaller.util.shell;
 
 import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.modosa.rootinstaller.utils.IOUtils;
-import com.modosa.rootinstaller.utils.Utils;
+import com.modosa.rootinstaller.util.IOUtils;
+import com.modosa.rootinstaller.util.Utils;
 
 import java.io.InputStream;
 import java.io.OutputStream;

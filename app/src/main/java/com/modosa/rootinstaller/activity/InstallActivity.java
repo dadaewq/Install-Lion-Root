@@ -1,4 +1,4 @@
-package com.modosa.rootinstaller;
+package com.modosa.rootinstaller.activity;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -8,14 +8,15 @@ import android.util.Log;
 
 import androidx.annotation.Nullable;
 
-import com.modosa.rootinstaller.utils.ShellUtils;
-import com.modosa.rootinstaller.utils.Utils;
-import com.modosa.rootinstaller.utils.apksource.ApkSource;
-import com.modosa.rootinstaller.utils.installer.ApkSourceBuilder;
-import com.modosa.rootinstaller.utils.installer.SAIPackageInstaller;
-import com.modosa.rootinstaller.utils.installer.rooted.RootedSAIPackageInstaller;
-import com.modosa.rootinstaller.utils.shell.Shell;
-import com.modosa.rootinstaller.utils.shell.SuShell;
+import com.modosa.rootinstaller.R;
+import com.modosa.rootinstaller.util.ShellUtil;
+import com.modosa.rootinstaller.util.Utils;
+import com.modosa.rootinstaller.util.apksource.ApkSource;
+import com.modosa.rootinstaller.util.installer.ApkSourceBuilder;
+import com.modosa.rootinstaller.util.installer.SAIPackageInstaller;
+import com.modosa.rootinstaller.util.installer.rooted.RootedSAIPackageInstaller;
+import com.modosa.rootinstaller.util.shell.Shell;
+import com.modosa.rootinstaller.util.shell.SuShell;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ import java.util.List;
 /**
  * @author dadaewq
  */
-public class MainActivity extends AbstractInstallActivity implements SAIPackageInstaller.InstallationStatusListener {
+public class InstallActivity extends AbstractInstallActivity implements SAIPackageInstaller.InstallationStatusListener {
 
     private long mOngoingSessionId;
     private String pkgName;
@@ -116,12 +117,14 @@ public class MainActivity extends AbstractInstallActivity implements SAIPackageI
     }
 
     private void installByShellUtils() {
-        String installcommand = "pm install -r " + "\"" + apkPath + "\"";
+        String installcommand = "pm install -r -d --user 0 -i " + getPackageName() + " \"" + apkPath + "\"";
         String[] resultSElinux = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            resultSElinux = ShellUtils.execWithRoot("setenforce 0");
+            resultSElinux = ShellUtil.execWithRoot("setenforce 0");
         }
-        String[] result = ShellUtils.execWithRoot(installcommand);
+        Log.e("installcommand", installcommand);
+        String[] result = ShellUtil.execWithRoot(installcommand);
+
 
         if ("0".equals(result[3])) {
             deleteCache();

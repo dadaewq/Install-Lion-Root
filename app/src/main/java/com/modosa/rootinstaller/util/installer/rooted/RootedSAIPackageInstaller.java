@@ -1,11 +1,11 @@
-package com.modosa.rootinstaller.utils.installer.rooted;
+package com.modosa.rootinstaller.util.installer.rooted;
 
 import android.content.Context;
 
 import com.modosa.rootinstaller.R;
-import com.modosa.rootinstaller.utils.installer.ShellSAIPackageInstaller;
-import com.modosa.rootinstaller.utils.shell.Shell;
-import com.modosa.rootinstaller.utils.shell.SuShell;
+import com.modosa.rootinstaller.util.installer.ShellSAIPackageInstaller;
+import com.modosa.rootinstaller.util.shell.Shell;
+import com.modosa.rootinstaller.util.shell.SuShell;
 
 public class RootedSAIPackageInstaller extends ShellSAIPackageInstaller {
     private static RootedSAIPackageInstaller sInstance;

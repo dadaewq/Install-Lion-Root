@@ -1,4 +1,4 @@
-package com.modosa.rootinstaller.utils.shell;
+package com.modosa.rootinstaller.util.shell;
 
 import android.annotation.SuppressLint;
 

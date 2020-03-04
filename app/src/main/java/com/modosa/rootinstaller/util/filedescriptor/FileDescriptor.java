@@ -1,4 +1,4 @@
-package com.modosa.rootinstaller.utils.filedescriptor;
+package com.modosa.rootinstaller.util.filedescriptor;
 
 import java.io.InputStream;
 
