@@ -229,6 +229,9 @@ public abstract class AbstractInstallActivity extends Activity {
                     alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(20);
                     alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(20);
                 }
+            } else {
+                startInstall(apkPath);
+                finish();
             }
         }
     }
