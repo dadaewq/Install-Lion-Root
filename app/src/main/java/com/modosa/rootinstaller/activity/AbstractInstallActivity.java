@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
@@ -22,6 +23,7 @@ import androidx.core.content.ContextCompat;
 
 import com.modosa.rootinstaller.R;
 import com.modosa.rootinstaller.util.AppInfoUtil;
+import com.modosa.rootinstaller.util.OpUtil;
 import com.modosa.rootinstaller.util.PraseContentUtil;
 
 import java.io.File;
@@ -39,6 +41,7 @@ public abstract class AbstractInstallActivity extends Activity {
     private static final String ILLEGALPKGNAME = "IL^&IllegalPN*@!128`+=：:,.[";
     private final String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
     private final String nl = System.getProperty("line.separator");
+    public boolean show_notification;
     String[] apkinfo;
     String packageLable;
     StringBuilder alertDialogMessage;
@@ -47,6 +50,7 @@ public abstract class AbstractInstallActivity extends Activity {
     private String[] source;
     private Uri uri;
     private SharedPreferences sourceSp;
+    private SharedPreferences sharedPreferences;
     private SharedPreferences.Editor editor;
     private AlertDialog alertDialog;
     private String cachePath;
@@ -59,7 +63,7 @@ public abstract class AbstractInstallActivity extends Activity {
         if (Intent.ACTION_DELETE.equals(action) || Intent.ACTION_UNINSTALL_PACKAGE.equals(action)) {
             pkgName = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
             if (pkgName == null) {
-                showToast0(getString(R.string.failed_prase));
+                showToast0(getString(R.string.tip_failed_prase));
                 finish();
             } else {
                 initUninstall();
@@ -68,6 +72,7 @@ public abstract class AbstractInstallActivity extends Activity {
             uri = getIntent().getData();
 
             sourceSp = getSharedPreferences("allowsource", Context.MODE_PRIVATE);
+            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
             if (checkPermission()) {
                 initInstall();
             } else {
@@ -118,7 +123,8 @@ public abstract class AbstractInstallActivity extends Activity {
             finish();
         });
         builder.setNegativeButton(android.R.string.no, (dialogInterface, i) -> finish());
-        alertDialog = builder.show();
+        alertDialog = builder.create();
+        OpUtil.showAlertDialog(this, alertDialog);
         alertDialog.setOnCancelListener(dialog -> finish());
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(20);
         alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(20);
@@ -127,98 +133,103 @@ public abstract class AbstractInstallActivity extends Activity {
 
     private void initInstall() {
         source = checkInstallSource();
+        boolean needconfirm = sharedPreferences.getBoolean("needconfirm", true);
+        show_notification = sharedPreferences.getBoolean("show_notification", false);
         boolean allowsource = sourceSp.getBoolean(source[0], false);
         String apkPath = preInstall();
         cachePath = apkPath;
         Log.e("cachePath", cachePath + "");
         if (apkPath == null) {
-            showToast0(getString(R.string.failed_prase));
-            finish();
-        } else if (!source[1].equals(ILLEGALPKGNAME) && allowsource) {
-            startInstall(apkPath);
+            showToast0(getString(R.string.tip_failed_prase));
             finish();
         } else {
+            if (needconfirm) {
+                if (!source[1].equals(ILLEGALPKGNAME) && allowsource) {
+                    startInstall(apkPath);
+                    finish();
+                } else {
+                    String[] version = AppInfoUtil.getApplicationVersion(this, apkinfo[1]);
 
-            String[] version = AppInfoUtil.getApplicationVersion(this, apkinfo[1]);
+                    alertDialogMessage = new StringBuilder();
+                    alertDialogMessage
+                            .append(nl)
+                            .append(
+                                    String.format(
+                                            getString(R.string.message_name),
+                                            apkinfo[0]
+                                    )
+                            )
+                            .append(nl)
+                            .append(
+                                    String.format(
+                                            getString(R.string.message_packagename),
+                                            apkinfo[1]
+                                    )
+                            )
+                            .append(nl)
+                            .append(
+                                    String.format(
+                                            getString(R.string.message_version),
+                                            apkinfo[2],
+                                            apkinfo[3]
+                                    )
+                            )
+                            .append(nl);
 
-            alertDialogMessage = new StringBuilder();
-            alertDialogMessage
-                    .append(nl)
-                    .append(
-                            String.format(
-                                    getString(R.string.message_name),
-                                    apkinfo[0]
-                            )
-                    )
-                    .append(nl)
-                    .append(
-                            String.format(
-                                    getString(R.string.message_packagename),
-                                    apkinfo[1]
-                            )
-                    )
-                    .append(nl)
-                    .append(
-                            String.format(
-                                    getString(R.string.message_version),
-                                    apkinfo[2],
-                                    apkinfo[3]
-                            )
-                    )
-                    .append(nl);
-
-            if (version != null) {
-                alertDialogMessage.append(
-                        String.format(
-                                getString(R.string.message_version_existed),
-                                version[0],
-                                version[1]
+                    if (version != null) {
+                        alertDialogMessage.append(
+                                String.format(
+                                        getString(R.string.message_version_existed),
+                                        version[0],
+                                        version[1]
+                                )
                         )
-                )
-                        .append(nl);
-            }
+                                .append(nl);
+                    }
 
-            alertDialogMessage
-                    .append(
-                            String.format(
-                                    getString(R.string.message_size),
-                                    apkinfo[4]
+                    alertDialogMessage
+                            .append(
+                                    String.format(
+                                            getString(R.string.message_size),
+                                            apkinfo[4]
+                                    )
                             )
-                    )
-                    .append(nl);
+                            .append(nl);
 
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle(getString(R.string.dialog_install_title));
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle(getString(R.string.dialog_install_title));
 
-            builder.setMessage(alertDialogMessage);
-            View checkBoxView = View.inflate(this, R.layout.confirm_checkbox, null);
-            builder.setView(checkBoxView);
-            CheckBox checkBox = checkBoxView.findViewById(R.id.confirm_checkbox);
-            if (source[1].equals(ILLEGALPKGNAME)) {
-                checkBox.setText(getString(R.string.installsource_unkonwn));
-                checkBox.setEnabled(false);
-            } else {
-                checkBox.setText(String.format(getString(R.string.always_allow), source[1]));
+                    builder.setMessage(alertDialogMessage);
+                    View checkBoxView = View.inflate(this, R.layout.confirm_checkbox, null);
+                    builder.setView(checkBoxView);
+                    CheckBox checkBox = checkBoxView.findViewById(R.id.confirm_checkbox);
+                    if (source[1].equals(ILLEGALPKGNAME)) {
+                        checkBox.setText(getString(R.string.checkbox_installsource_unkonwn));
+                        checkBox.setEnabled(false);
+                    } else {
+                        checkBox.setText(String.format(getString(R.string.checkbox_always_allow), source[1]));
+                    }
+
+                    builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                        cachePath = null;
+                        if (!source[1].equals(ILLEGALPKGNAME)) {
+                            editor = sourceSp.edit();
+                            editor.putBoolean(source[0], checkBox.isChecked());
+                            editor.apply();
+                        }
+                        startInstall(apkPath);
+                        finish();
+                    });
+                    builder.setNegativeButton(android.R.string.no, (dialog, which) -> finish());
+
+
+                    builder.setCancelable(false);
+                    alertDialog = builder.create();
+                    OpUtil.showAlertDialog(this, alertDialog);
+                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(20);
+                    alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(20);
+                }
             }
-
-
-            checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                editor = sourceSp.edit();
-                editor.putBoolean(source[0], isChecked);
-                editor.apply();
-            });
-            builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
-                cachePath = null;
-                startInstall(apkPath);
-                finish();
-            });
-            builder.setNegativeButton(android.R.string.no, (dialog, which) -> finish());
-
-
-            builder.setCancelable(false);
-            alertDialog = builder.show();
-            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(20);
-            alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(20);
         }
     }
 
@@ -285,7 +296,7 @@ public abstract class AbstractInstallActivity extends Activity {
                 }
 
             } else {
-                showToast0(getString(R.string.failed_prase));
+                showToast0(getString(R.string.tip_failed_prase));
                 finish();
             }
             apkinfo = AppInfoUtil.getApkInfo(this, apkPath);
