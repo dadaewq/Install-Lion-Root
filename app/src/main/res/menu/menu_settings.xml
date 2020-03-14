@@ -11,5 +11,15 @@
         android:orderInCategory="20"
         android:showAsAction="never"
         android:title="@string/ClearAllowedList" />
-
+    <item
+        android:id="@+id/ClearCache"
+        android:orderInCategory="30"
+        android:showAsAction="never"
+        android:title="@string/ClearCache" />
+    <item
+        android:id="@+id/InstallFromSAF"
+        android:icon="@drawable/pick"
+        android:orderInCategory="40"
+        android:showAsAction="ifRoom"
+        android:title="@string/InstallFromGetContent" />
 </menu>

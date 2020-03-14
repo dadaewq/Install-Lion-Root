@@ -14,7 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.modosa.rootinstaller.R;
-import com.modosa.rootinstaller.util.OpUtil;
+import com.modosa.rootinstaller.util.shell.SuShell;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.Executors;
@@ -48,10 +48,10 @@ public class SettingsFragment extends PreferenceFragment {
 
     @Override
     public void onDestroy() {
+        super.onDestroy();
+
         // Remove all Runnable and Message.
         mHandler.removeCallbacksAndMessages(null);
-
-        super.onDestroy();
     }
 
     private void init() {
@@ -63,7 +63,7 @@ public class SettingsFragment extends PreferenceFragment {
 
             Executors.newSingleThreadExecutor().execute(() -> {
                 Message msg = mHandler.obtainMessage();
-                if (OpUtil.checkRoot()) {
+                if (SuShell.getInstance().isAvailable()) {
                     msg.arg1 = 2;
                 } else {
                     msg.arg1 = -1;
@@ -76,7 +76,7 @@ public class SettingsFragment extends PreferenceFragment {
 
         Executors.newSingleThreadExecutor().execute(() -> {
             Message msg = mHandler.obtainMessage();
-            if (OpUtil.checkRoot()) {
+            if (SuShell.getInstance().isAvailable()) {
                 msg.arg1 = 1;
             } else {
                 msg.arg1 = -1;
@@ -93,7 +93,7 @@ public class SettingsFragment extends PreferenceFragment {
 
     private static class MyHandler extends Handler {
 
-        private WeakReference<SettingsFragment> wrFragment;
+        private final WeakReference<SettingsFragment> wrFragment;
 
         MyHandler(SettingsFragment fragment) {
             this.wrFragment = new WeakReference<>(fragment);

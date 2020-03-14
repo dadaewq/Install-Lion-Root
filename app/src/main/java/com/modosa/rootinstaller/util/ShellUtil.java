@@ -44,7 +44,7 @@ public class ShellUtil {
                         myResult[0] = text;
 //                        Log.e("onStdout", myResult[0]);
                     });
-            //                        Log.e("onStderr", text);
+
             stderr = new OutputReader(new BufferedReader(new InputStreamReader(process.getErrorStream())),
                     errlist::add);
 

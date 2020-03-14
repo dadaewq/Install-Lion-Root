@@ -5,16 +5,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.Looper;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
 import com.modosa.rootinstaller.R;
-import com.modosa.rootinstaller.util.OpUtil;
+import com.modosa.rootinstaller.util.ResultUtil;
 import com.modosa.rootinstaller.util.ShellUtil;
-import com.modosa.rootinstaller.util.Utils;
 import com.modosa.rootinstaller.util.apksource.ApkSource;
 import com.modosa.rootinstaller.util.installer.ApkSourceBuilder;
 import com.modosa.rootinstaller.util.installer.SAIPackageInstaller;
@@ -32,6 +29,7 @@ import java.util.List;
  */
 public class InstallActivity extends AbstractInstallActivity implements SAIPackageInstaller.InstallationStatusListener {
 
+    private ArrayList<File> files;
     private long mOngoingSessionId;
     private String pkgName;
     private String apkPath;
@@ -43,27 +41,11 @@ public class InstallActivity extends AbstractInstallActivity implements SAIPacka
             this.apkPath = apkPath;
             apkFile = new File(apkPath);
 
-            ArrayList<File> files = new ArrayList<>();
+            files = new ArrayList<>();
             files.add(apkFile);
-            if (OpUtil.checkRoot()) {
-                new Thread(() -> {
-                    showToast0(String.format(getString(R.string.start_install), apkinfo[0]));
-                    try {
-                        installPackages(files);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
 
-                ).start();
-            } else {
-                deleteCache();
-                Toast.makeText(this, R.string.installer_error_root_no_root, Toast.LENGTH_SHORT).show();
-            }
+            new InstallApkTask().start();
 
-        } else {
-            showToast0(getString(R.string.tip_failed_read));
-            finish();
         }
     }
 
@@ -109,7 +91,7 @@ public class InstallActivity extends AbstractInstallActivity implements SAIPacka
 
                 if (packageNameOrErrorDescription != null) {
                     if (packageNameOrErrorDescription.contains(getString(R.string.installer_error_root_no_root))) {
-                        installByShellUtils();
+                        installByShellUtil();
                     } else {
                         showNotification(false);
                         deleteCache();
@@ -153,13 +135,15 @@ public class InstallActivity extends AbstractInstallActivity implements SAIPacka
 
     }
 
-    private void installByShellUtils() {
+    private void installByShellUtil() {
         String installcommand = "pm install -r -d --user 0 -i " + getPackageName() + " \"" + apkPath + "\"";
-        String[] resultSElinux = null;
+
+        String[] resultselinux = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            resultSElinux = ShellUtil.execWithRoot("setenforce 0");
+            resultselinux = ShellUtil.execWithRoot("setenforce 0");
         }
         Log.e("installcommand", installcommand);
+
         String[] result = ShellUtil.execWithRoot(installcommand);
 
 
@@ -170,22 +154,47 @@ public class InstallActivity extends AbstractInstallActivity implements SAIPacka
         } else {
             showNotification(false);
             deleteCache();
-            String saiVersion = "???";
+            String installerVersion = "???";
             try {
-                saiVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+                installerVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             } catch (PackageManager.NameNotFoundException ignore) {
             }
-            StringBuilder err = new StringBuilder(String.format("%s: %s %s | %s | Android %s | Install Lion-Root %s\n\n", getString(R.string.installer_device), Build.BRAND, Build.MODEL, Utils.isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE, saiVersion))
+            StringBuilder err = new StringBuilder(String.format("%s: %s %s | %s | Android %s | Install Lion-Root %s\n\n", getString(R.string.installer_device), Build.BRAND, Build.MODEL, ResultUtil.isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE, installerVersion))
                     .append(String.format("Command: %s\nExit code: %s\nOut:\n%s\n=============\nErr:\n%s", result[2], result[3], result[0], result[1]));
 
-            if (resultSElinux != null && !"0".equals(resultSElinux[3])) {
-                copyErr(err.append("\n") + resultSElinux[1]);
-                showToast1(String.format(getString(R.string.tip_failed_install_witherror), apkinfo[0], resultSElinux[1] + "\n" + result[1]));
+            if (resultselinux != null && !"0".equals(resultselinux[3])) {
+                copyErr(err.append("\n") + resultselinux[1]);
+
+                int i = 0;
+                for (String key : resultselinux
+                ) {
+                    i++;
+                    Log.e(i + " ", key + "");
+                }
+                showToast1(String.format(getString(R.string.tip_failed_install_witherror), apkinfo[0], resultselinux[1] + "\n" + result[1]));
             } else {
                 copyErr(err.toString());
                 showToast1(String.format(getString(R.string.tip_failed_install_witherror), apkinfo[0], result[1]));
             }
 
+        }
+    }
+
+    private class InstallApkTask extends Thread {
+        @Override
+        public void run() {
+            super.run();
+            if (SuShell.getInstance().isAvailable()) {
+                showToast0(String.format(getString(R.string.start_install), apkinfo[0]));
+                try {
+                    installPackages(files);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                deleteCache();
+                showToast1(String.format(getString(R.string.tip_failed_install), getString(R.string.installer_error_root_no_root)));
+            }
         }
     }
 
@@ -195,11 +204,8 @@ public class InstallActivity extends AbstractInstallActivity implements SAIPacka
         public void run() {
             super.run();
             Log.d("Start uninstall", pkgName);
-            Looper.prepare();
-            if (!SuShell.getInstance().isAvailable()) {
-                copyErr(String.format("%s\n\n%s\n%s", getString(R.string.dialog_uninstall_title), alertDialogMessage, getString(R.string.installer_error_root_no_root)));
-                showToast1(String.format(getString(R.string.tip_failed_uninstall_witherror), packageLable, getString(R.string.installer_error_root_no_root)));
-            } else {
+
+            if (SuShell.getInstance().isAvailable()) {
                 Shell.Result uninstallationResult = SuShell.getInstance().exec(new Shell.Command("pm", "uninstall", pkgName));
                 if (0 == uninstallationResult.exitCode) {
                     showToast0(String.format(getString(R.string.tip_success_uninstall), packageLable));
@@ -209,12 +215,13 @@ public class InstallActivity extends AbstractInstallActivity implements SAIPacka
                         saiVersion = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
                     } catch (PackageManager.NameNotFoundException ignore) {
                     }
-                    String info = String.format("%s: %s %s | %s | Android %s | Install Lion-Root %s\n\n", getString(R.string.installer_device), Build.BRAND, Build.MODEL, Utils.isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE, saiVersion);
+                    String info = String.format("%s: %s %s | %s | Android %s | Install Lion-Root %s\n\n", getString(R.string.installer_device), Build.BRAND, Build.MODEL, ResultUtil.isMiui() ? "MIUI" : "Not MIUI", Build.VERSION.RELEASE, saiVersion);
                     copyErr(info + uninstallationResult.toString());
                     showToast1(String.format(getString(R.string.tip_failed_uninstall_witherror), packageLable, uninstallationResult.err));
                 }
+            } else {
+                showToast1(String.format(getString(R.string.tip_failed_uninstall), getString(R.string.installer_error_root_no_root)));
             }
-            Looper.loop();
         }
     }
 }

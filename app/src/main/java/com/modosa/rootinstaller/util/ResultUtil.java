@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-public class Utils {
+public class ResultUtil {
 
     public static String throwableToString(Throwable throwable) {
         StringWriter sw = new StringWriter(1024);

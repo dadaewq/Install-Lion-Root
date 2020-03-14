@@ -2,12 +2,13 @@
 <resources>
     <string name="app_name">Install Lion-Root</string>
     <string name="start_install">Start installing  %1$s</string>
+    <string name="tip_failed_get_content">Get Failed</string>
     <string name="tip_failed_prase">Unable to parse</string>
-    <string name="tip_failed_read">Reading apk failed</string>
     <string name="tip_success_install">%1$s Installed succeed</string>
     <string name="tip_failed_install">%1$s Installed failed</string>
     <string name="tip_failed_install_witherror">%1$s Installed failed,The error has been copied to the clipboard\n%2$s</string>
     <string name="tip_success_uninstall">%1$s Uninstalled succeed</string>
+    <string name="tip_failed_uninstall">%1$s Uninstalled failed</string>
     <string name="tip_failed_uninstall_witherror">%1$s Uninstalled failed,The error has been copied to the clipboard\n%2$s</string>
     <string name="dialog_install_title">Installation</string>
     <string name="dialog_uninstall_title">Uninstallation</string>
@@ -27,15 +28,16 @@
     <string name="title_show_root_yes">Have Root permission</string>
     <string name="launch_name">Run App</string>
     <string name="unknown">Unknown</string>
-
     <string name="ClearAllowedList">Clear allowed installation list</string>
     <string name="HideIcon">Hide Icon</string>
     <string name="checkbox_ClearAllowedList">Confirm Clear</string>
     <string name="message_ClearAllowedList">\nClear the list of apps you don\'t need to confirm before installation\n</string>
     <string name="message_HideIcon">You can open the app settings in the following way\n\nSystem App Info-Manage space\n2.1.Dialer *#*#297668#*#*\n3.System App Info-Additional settings\n</string>
-
+    <string name="ClearCache">Clear cache</string>
+    <string name="tip_empty_cache">No cache currently, no cleaning required</string>
+    <string name="message_ClearCache">Current cache size is %s\nClear it?</string>
+    <string name="InstallFromGetContent">Pick a file to install</string>
     <string name="tip_exit">Press back again to exit</string>
-
     <string name="show_tip">Show notification after installation,You can run the app by clicking the notification</string>
     <string name="show_title">Show notification</string>
     <string name="summary_off_needconfirm">Never display a confirmation dialog  before installation</string>

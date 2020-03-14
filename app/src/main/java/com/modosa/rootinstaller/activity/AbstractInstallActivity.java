@@ -27,10 +27,6 @@ import com.modosa.rootinstaller.util.OpUtil;
 import com.modosa.rootinstaller.util.PraseContentUtil;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Objects;
 
 
@@ -41,11 +37,11 @@ public abstract class AbstractInstallActivity extends Activity {
     private static final String ILLEGALPKGNAME = "IL^&IllegalPN*@!128`+=：:,.[";
     private final String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
     private final String nl = System.getProperty("line.separator");
-    public boolean show_notification;
+    boolean show_notification;
     String[] apkinfo;
     String packageLable;
-    StringBuilder alertDialogMessage;
     File apkFile;
+    private StringBuilder alertDialogMessage;
     private boolean istemp = false;
     private String[] source;
     private Uri uri;
@@ -63,7 +59,7 @@ public abstract class AbstractInstallActivity extends Activity {
         if (Intent.ACTION_DELETE.equals(action) || Intent.ACTION_UNINSTALL_PACKAGE.equals(action)) {
             pkgName = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
             if (pkgName == null) {
-                showToast0(getString(R.string.tip_failed_prase));
+                showToast0(R.string.tip_failed_prase);
                 finish();
             } else {
                 initUninstall();
@@ -140,7 +136,7 @@ public abstract class AbstractInstallActivity extends Activity {
         cachePath = apkPath;
         Log.e("cachePath", cachePath + "");
         if (apkPath == null) {
-            showToast0(getString(R.string.tip_failed_prase));
+            showToast0(R.string.tip_failed_prase);
             finish();
         } else {
             if (needconfirm) {
@@ -222,7 +218,6 @@ public abstract class AbstractInstallActivity extends Activity {
                     });
                     builder.setNegativeButton(android.R.string.no, (dialog, which) -> finish());
 
-
                     builder.setCancelable(false);
                     alertDialog = builder.create();
                     OpUtil.showAlertDialog(this, alertDialog);
@@ -267,7 +262,7 @@ public abstract class AbstractInstallActivity extends Activity {
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         if (istemp && (cachePath != null)) {
-            deleteSingleFile(new File(cachePath));
+            OpUtil.deleteSingleFile(new File(cachePath));
         }
         if (alertDialog != null) {
             alertDialog.dismiss();
@@ -295,11 +290,12 @@ public abstract class AbstractInstallActivity extends Activity {
                 if (file != null) {
                     apkPath = file.getPath();
                 } else {
-                    apkPath = createApkFromUri(this);
+                    istemp = true;
+                    apkPath = OpUtil.createApkFromUri(this, uri).getPath();
                 }
 
             } else {
-                showToast0(getString(R.string.tip_failed_prase));
+                showToast0(R.string.tip_failed_prase);
                 finish();
             }
             apkinfo = AppInfoUtil.getApkInfo(this, apkPath);
@@ -337,47 +333,22 @@ public abstract class AbstractInstallActivity extends Activity {
         runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_SHORT).show());
     }
 
+    void showToast0(final int stringId) {
+        runOnUiThread(() -> Toast.makeText(this, stringId, Toast.LENGTH_SHORT).show());
+    }
+
     void showToast1(final String text) {
         runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_LONG).show());
     }
 
-    private String createApkFromUri(Context context) {
-        istemp = true;
-        File tempFile = new File(context.getExternalCacheDir(), System.currentTimeMillis() + ".apk");
-        try {
-            InputStream is = context.getContentResolver().openInputStream(uri);
-            if (is != null) {
-                OutputStream fos = new FileOutputStream(tempFile);
-                byte[] buf = new byte[4096 * 1024];
-                int ret;
-                while ((ret = is.read(buf)) != -1) {
-                    fos.write(buf, 0, ret);
-                    fos.flush();
-                }
-                fos.close();
-                is.close();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return tempFile.getAbsolutePath();
+    void showToast1(final int stringId) {
+        runOnUiThread(() -> Toast.makeText(this, stringId, Toast.LENGTH_SHORT).show());
     }
 
     void deleteCache() {
         if (istemp) {
-            deleteSingleFile(apkFile);
+            OpUtil.deleteSingleFile(apkFile);
         }
     }
 
-    private void deleteSingleFile(File file) {
-        if (file.exists() && file.isFile()) {
-            if (file.delete()) {
-                Log.e("-DELETE-", "==>" + file.getAbsolutePath() + " OK！");
-            } else {
-                finish();
-            }
-        } else {
-            finish();
-        }
-    }
 }

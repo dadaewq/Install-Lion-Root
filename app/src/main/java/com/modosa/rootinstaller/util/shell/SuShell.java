@@ -6,7 +6,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 
 import com.modosa.rootinstaller.util.IOUtils;
-import com.modosa.rootinstaller.util.Utils;
+import com.modosa.rootinstaller.util.ResultUtil;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -94,7 +94,7 @@ public class SuShell implements Shell {
         } catch (Exception e) {
             Log.w(TAG, "Unable execute command: ");
             Log.w(TAG, e);
-            return new Result(command, -1, stdOutSb.toString().trim(), stdErrSb.toString() + "\n\n<!> SAI SuShell Java exception: " + Utils.throwableToString(e));
+            return new Result(command, -1, stdOutSb.toString().trim(), stdErrSb.toString() + "\n\n<!> SAI SuShell Java exception: " + ResultUtil.throwableToString(e));
         }
     }
 }
