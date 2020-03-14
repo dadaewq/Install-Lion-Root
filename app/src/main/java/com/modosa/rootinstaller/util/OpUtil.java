@@ -23,6 +23,7 @@ import java.io.OutputStream;
  * @author dadaewq
  */
 public class OpUtil {
+    public static final String MODOSA_ACTION_PICK_FILE = "modosa.action.PICK_FILE";
 
     public static File createApkFromUri(Context context, Uri uri) {
 

@@ -31,18 +31,18 @@ public class InstallActivity extends AbstractInstallActivity implements SAIPacka
 
     private ArrayList<File> files;
     private long mOngoingSessionId;
-    private String pkgName;
-    private String apkPath;
+    private String installApkPath;
+    private String uninstallPkgName;
 
     @Override
-    public void startInstall(String apkPath) {
-        Log.d("Start install", apkPath + "");
-        if (apkPath != null) {
-            this.apkPath = apkPath;
-            apkFile = new File(apkPath);
+    public void startInstall(String getinstallApkPath) {
+        Log.d("Start install", getinstallApkPath + "");
+        if (getinstallApkPath != null) {
+            installApkPath = getinstallApkPath;
+            installApkFile = new File(installApkPath);
 
             files = new ArrayList<>();
-            files.add(apkFile);
+            files.add(installApkFile);
 
             new InstallApkTask().start();
 
@@ -50,8 +50,8 @@ public class InstallActivity extends AbstractInstallActivity implements SAIPacka
     }
 
     @Override
-    protected void startUninstall(String pkgName) {
-        this.pkgName = pkgName;
+    protected void startUninstall(String getUninstallPkgName) {
+        this.uninstallPkgName = getUninstallPkgName;
         new UninstallApkTask().start();
     }
 
@@ -126,7 +126,7 @@ public class InstallActivity extends AbstractInstallActivity implements SAIPacka
             } else {
                 intent.putExtra("channelId", "4")
                         .putExtra("channelName", getString(R.string.channalname_fail))
-                        .putExtra("realPath", apkPath)
+                        .putExtra("realPath", installApkPath)
                         .putExtra("contentTitle", String.format(getString(R.string.tip_failed_install), apkinfo[0]));
             }
             startActivity(intent);
@@ -136,7 +136,7 @@ public class InstallActivity extends AbstractInstallActivity implements SAIPacka
     }
 
     private void installByShellUtil() {
-        String installcommand = "pm install -r -d --user 0 -i " + getPackageName() + " \"" + apkPath + "\"";
+        String installcommand = "pm install -r -d --user 0 -i " + getPackageName() + " \"" + installApkPath + "\"";
 
         String[] resultselinux = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -203,10 +203,10 @@ public class InstallActivity extends AbstractInstallActivity implements SAIPacka
         @Override
         public void run() {
             super.run();
-            Log.d("Start uninstall", pkgName);
+            Log.d("Start uninstall", uninstallPkgName);
 
             if (SuShell.getInstance().isAvailable()) {
-                Shell.Result uninstallationResult = SuShell.getInstance().exec(new Shell.Command("pm", "uninstall", pkgName));
+                Shell.Result uninstallationResult = SuShell.getInstance().exec(new Shell.Command("pm", "uninstall", uninstallPkgName));
                 if (0 == uninstallationResult.exitCode) {
                     showToast0(String.format(getString(R.string.tip_success_uninstall), packageLable));
                 } else {

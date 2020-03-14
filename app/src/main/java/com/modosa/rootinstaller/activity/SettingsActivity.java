@@ -6,7 +6,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -66,7 +65,7 @@ public class SettingsActivity extends Activity {
                 showDialogClearCache();
                 break;
             case R.id.InstallFromSAF:
-                openFile();
+                startPickFile();
                 break;
             default:
                 return super.onOptionsItemSelected(item);
@@ -74,34 +73,11 @@ public class SettingsActivity extends Activity {
         return true;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-
-        if (requestCode == PICK_APK_FILE
-                && resultCode == Activity.RESULT_OK
-                && resultData != null) {
-
-            Uri installUri = resultData.getData();
-
-            Intent intent = new Intent(Intent.ACTION_VIEW, installUri);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            intent.setClass(this, InstallActivity.class);
-            startActivity(intent);
-            // Perform operations on the document using its URI.
-        } else {
-            Toast.makeText(this, R.string.tip_failed_get_content, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
-    // 用 ACTION_GET_CONTENT 而不是ACTION_OPEN_DOCUMENT 可支持更多App
-    private void openFile() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        // 因为设备上Apk文件的后缀并不一定是"apk"，所以不使用"application/vnd.android.package-archive"
-        intent.setType("application/*");
-        startActivityForResult(intent, PICK_APK_FILE);
-//        startActivity(Intent.createChooser(intent,null));
+    private void startPickFile() {
+        Intent intent = new Intent(OpUtil.MODOSA_ACTION_PICK_FILE);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setClass(this, InstallActivity.class);
+        startActivity(intent);
     }
 
 

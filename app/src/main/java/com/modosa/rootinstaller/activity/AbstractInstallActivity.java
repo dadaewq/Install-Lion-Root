@@ -34,13 +34,14 @@ import java.util.Objects;
  * @author dadaewq
  */
 public abstract class AbstractInstallActivity extends Activity {
+    private static final int PICK_APK_FILE = 2;
     private static final String ILLEGALPKGNAME = "IL^&IllegalPN*@!128`+=：:,.[";
     private final String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
     private final String nl = System.getProperty("line.separator");
     boolean show_notification;
     String[] apkinfo;
     String packageLable;
-    File apkFile;
+    File installApkFile;
     private StringBuilder alertDialogMessage;
     private boolean istemp = false;
     private String[] source;
@@ -50,37 +51,50 @@ public abstract class AbstractInstallActivity extends Activity {
     private SharedPreferences.Editor editor;
     private AlertDialog alertDialog;
     private String cachePath;
-    private String pkgName;
+    private String uninstallPkgName;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String action = getIntent().getAction();
-        if (Intent.ACTION_DELETE.equals(action) || Intent.ACTION_UNINSTALL_PACKAGE.equals(action)) {
-            pkgName = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
-            if (pkgName == null) {
-                showToast0(R.string.tip_failed_prase);
-                finish();
-            } else {
-                initUninstall();
-            }
-        } else {
-            uri = getIntent().getData();
+        initFromAction(getIntent().getAction() + "");
+    }
 
-            sourceSp = getSharedPreferences("allowsource", Context.MODE_PRIVATE);
-            sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-            if (checkPermission()) {
-                initInstall();
-            } else {
-                requestPermission();
-            }
+    private void initFromAction(String action) {
+        switch (action) {
+            case OpUtil.MODOSA_ACTION_PICK_FILE:
+                openFile();
+                break;
+            case Intent.ACTION_DELETE:
+            case Intent.ACTION_UNINSTALL_PACKAGE:
+                uninstallPkgName = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
+                if (uninstallPkgName == null) {
+                    showToast0(R.string.tip_failed_prase);
+                    finish();
+                } else {
+                    initUninstall();
+                }
+                break;
+            default:
+                uri = getIntent().getData();
+                initFromUri();
+
+        }
+    }
+
+    private void initFromUri() {
+        sourceSp = getSharedPreferences("allowsource", Context.MODE_PRIVATE);
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        if (checkPermission()) {
+            initInstall();
+        } else {
+            requestPermission();
         }
     }
 
     private void initUninstall() {
-        String[] version = AppInfoUtil.getApplicationVersion(this, pkgName);
+        String[] version = AppInfoUtil.getApplicationVersion(this, uninstallPkgName);
 
-        packageLable = AppInfoUtil.getApplicationLabel(this, pkgName);
+        packageLable = AppInfoUtil.getApplicationLabel(this, uninstallPkgName);
         if (AppInfoUtil.UNINSTALLED.equals(packageLable)) {
             packageLable = "Uninstalled";
         }
@@ -97,7 +111,7 @@ public abstract class AbstractInstallActivity extends Activity {
                 .append(
                         String.format(
                                 getString(R.string.message_packagename),
-                                pkgName
+                                uninstallPkgName
                         )
                 )
                 .append(nl);
@@ -115,7 +129,7 @@ public abstract class AbstractInstallActivity extends Activity {
         builder.setTitle(getString(R.string.dialog_uninstall_title));
         builder.setMessage(alertDialogMessage + nl + nl + getString(R.string.message_uninstalConfirm));
         builder.setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
-            startUninstall(pkgName);
+            startUninstall(uninstallPkgName);
             finish();
         });
         builder.setNegativeButton(android.R.string.no, (dialogInterface, i) -> finish());
@@ -132,16 +146,17 @@ public abstract class AbstractInstallActivity extends Activity {
         boolean needconfirm = sharedPreferences.getBoolean("needconfirm", true);
         show_notification = sharedPreferences.getBoolean("show_notification", false);
         boolean allowsource = sourceSp.getBoolean(source[0], false);
-        String apkPath = preInstall();
-        cachePath = apkPath;
-        Log.e("cachePath", cachePath + "");
-        if (apkPath == null) {
+        String validApkPath = preInstallGetValidApkPath();
+        if (validApkPath == null) {
             showToast0(R.string.tip_failed_prase);
             finish();
         } else {
+            cachePath = validApkPath;
+            Log.e("cachePath", cachePath + "");
+
             if (needconfirm) {
                 if (!source[1].equals(ILLEGALPKGNAME) && allowsource) {
-                    startInstall(apkPath);
+                    startInstall(validApkPath);
                     finish();
                 } else {
                     String[] version = AppInfoUtil.getApplicationVersion(this, apkinfo[1]);
@@ -213,7 +228,7 @@ public abstract class AbstractInstallActivity extends Activity {
                             editor.putBoolean(source[0], checkBox.isChecked());
                             editor.apply();
                         }
-                        startInstall(apkPath);
+                        startInstall(validApkPath);
                         finish();
                     });
                     builder.setNegativeButton(android.R.string.no, (dialog, which) -> finish());
@@ -225,10 +240,11 @@ public abstract class AbstractInstallActivity extends Activity {
                     alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(20);
                 }
             } else {
-                startInstall(apkPath);
+                startInstall(validApkPath);
                 finish();
             }
         }
+
     }
 
     private String[] checkInstallSource() {
@@ -259,6 +275,33 @@ public abstract class AbstractInstallActivity extends Activity {
     }
 
     @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+
+        Log.e("resultData", "o " + resultData);
+        if (requestCode == PICK_APK_FILE
+                && resultCode == Activity.RESULT_OK
+                && resultData != null) {
+
+            uri = resultData.getData();
+            initFromUri();
+        } else {
+            Toast.makeText(this, R.string.tip_failed_get_content, Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+    }
+
+
+    // 用 ACTION_GET_CONTENT 而不是ACTION_OPEN_DOCUMENT 可支持更多App
+    private void openFile() {
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        // 因为设备上Apk文件的后缀并不一定是"apk"，所以不使用"application/vnd.android.package-archive"
+        intent.setType("application/*");
+        startActivityForResult(intent, PICK_APK_FILE);
+    }
+
+    @Override
     public void onDetachedFromWindow() {
         super.onDetachedFromWindow();
         if (istemp && (cachePath != null)) {
@@ -278,41 +321,43 @@ public abstract class AbstractInstallActivity extends Activity {
         }
     }
 
-    private String preInstall() {
-        String apkPath = null;
+    private String preInstallGetValidApkPath() {
+        String getPath = null;
+        Log.e("uri", uri + "");
         if (uri != null) {
             Log.e("--getData--", uri + "");
             if (ContentResolver.SCHEME_FILE.equals(uri.getScheme())) {
-                apkPath = uri.getPath();
+                getPath = uri.getPath();
             } else if (ContentResolver.SCHEME_CONTENT.equals(uri.getScheme())) {
 
                 File file = PraseContentUtil.getFile(this, uri);
                 if (file != null) {
-                    apkPath = file.getPath();
+                    getPath = file.getPath();
                 } else {
                     istemp = true;
-                    apkPath = OpUtil.createApkFromUri(this, uri).getPath();
+                    getPath = OpUtil.createApkFromUri(this, uri).getPath();
                 }
+                Log.e("getPathfromContent", getPath + "");
+            }
+            if (getPath != null) {
+                apkinfo = AppInfoUtil.getApkInfo(this, getPath);
+                if (apkinfo != null) {
+                    return getPath;
+                }
+            }
 
-            } else {
-                showToast0(R.string.tip_failed_prase);
-                finish();
-            }
-            apkinfo = AppInfoUtil.getApkInfo(this, apkPath);
-            if (apkinfo != null) {
-                return apkPath;
-            } else {
-                return null;
-            }
-        } else {
-            finish();
-            return null;
         }
+
+        if (getPath != null && istemp) {
+            OpUtil.deleteSingleFile(new File(getPath));
+        }
+        return null;
     }
 
-    protected abstract void startInstall(String apkPath);
 
-    protected abstract void startUninstall(String pkgName);
+    protected abstract void startInstall(String installApkFile);
+
+    protected abstract void startUninstall(String uninstallPkgname);
 
     private void requestPermission() {
         ActivityCompat.requestPermissions(this, permissions, 0x233);
@@ -333,7 +378,7 @@ public abstract class AbstractInstallActivity extends Activity {
         runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_SHORT).show());
     }
 
-    void showToast0(final int stringId) {
+    private void showToast0(final int stringId) {
         runOnUiThread(() -> Toast.makeText(this, stringId, Toast.LENGTH_SHORT).show());
     }
 
@@ -347,7 +392,7 @@ public abstract class AbstractInstallActivity extends Activity {
 
     void deleteCache() {
         if (istemp) {
-            OpUtil.deleteSingleFile(apkFile);
+            OpUtil.deleteSingleFile(installApkFile);
         }
     }
 
