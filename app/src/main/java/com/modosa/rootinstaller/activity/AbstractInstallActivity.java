@@ -40,7 +40,7 @@ public abstract class AbstractInstallActivity extends Activity {
     private final String nl = System.getProperty("line.separator");
     boolean show_notification;
     String[] apkinfo;
-    String packageLable;
+    String uninstallPackageLable;
     File installApkFile;
     private StringBuilder alertDialogMessage;
     private boolean istemp = false;
@@ -68,7 +68,7 @@ public abstract class AbstractInstallActivity extends Activity {
             case Intent.ACTION_UNINSTALL_PACKAGE:
                 uninstallPkgName = Objects.requireNonNull(getIntent().getData()).getEncodedSchemeSpecificPart();
                 if (uninstallPkgName == null) {
-                    showToast0(R.string.tip_failed_prase);
+                    showMyToast0(R.string.tip_failed_prase);
                     finish();
                 } else {
                     initUninstall();
@@ -94,9 +94,9 @@ public abstract class AbstractInstallActivity extends Activity {
     private void initUninstall() {
         String[] version = AppInfoUtil.getApplicationVersion(this, uninstallPkgName);
 
-        packageLable = AppInfoUtil.getApplicationLabel(this, uninstallPkgName);
-        if (AppInfoUtil.UNINSTALLED.equals(packageLable)) {
-            packageLable = "Uninstalled";
+        uninstallPackageLable = AppInfoUtil.getApplicationLabel(this, uninstallPkgName);
+        if (AppInfoUtil.UNINSTALLED.equals(uninstallPackageLable)) {
+            uninstallPackageLable = "Uninstalled";
         }
 
         alertDialogMessage = new StringBuilder();
@@ -104,7 +104,7 @@ public abstract class AbstractInstallActivity extends Activity {
                 .append(
                         String.format(
                                 getString(R.string.message_name),
-                                packageLable
+                                uninstallPackageLable
                         )
                 )
                 .append(nl)
@@ -125,14 +125,15 @@ public abstract class AbstractInstallActivity extends Activity {
                     .append(nl);
         }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(getString(R.string.dialog_uninstall_title));
-        builder.setMessage(alertDialogMessage + nl + nl + getString(R.string.message_uninstalConfirm));
-        builder.setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
-            startUninstall(uninstallPkgName);
-            finish();
-        });
-        builder.setNegativeButton(android.R.string.no, (dialogInterface, i) -> finish());
+        AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                .setTitle(R.string.title_dialog_uninstall)
+                .setMessage(alertDialogMessage + nl + nl + getString(R.string.message_irrevocableConfirm))
+                .setNegativeButton(android.R.string.no, (dialogInterface, i) -> finish())
+                .setPositiveButton(android.R.string.yes, (dialogInterface, i) -> {
+                    startUninstall(uninstallPkgName);
+                    finish();
+                });
+
         alertDialog = builder.create();
         OpUtil.showAlertDialog(this, alertDialog);
         alertDialog.setOnCancelListener(dialog -> finish());
@@ -148,7 +149,7 @@ public abstract class AbstractInstallActivity extends Activity {
         boolean allowsource = sourceSp.getBoolean(source[0], false);
         String validApkPath = preInstallGetValidApkPath();
         if (validApkPath == null) {
-            showToast0(R.string.tip_failed_prase);
+            showMyToast0(R.string.tip_failed_prase);
             finish();
         } else {
             cachePath = validApkPath;
@@ -158,70 +159,80 @@ public abstract class AbstractInstallActivity extends Activity {
                 if (!source[1].equals(ILLEGALPKGNAME) && allowsource) {
                     startInstall(validApkPath);
                     finish();
-                } else {
-                    String[] version = AppInfoUtil.getApplicationVersion(this, apkinfo[1]);
+                    return;
+                }
+            } else {
+                startInstall(validApkPath);
+                finish();
+                return;
+            }
 
-                    alertDialogMessage = new StringBuilder();
-                    alertDialogMessage
-                            .append(nl)
-                            .append(
-                                    String.format(
-                                            getString(R.string.message_name),
-                                            apkinfo[0]
-                                    )
-                            )
-                            .append(nl)
-                            .append(
-                                    String.format(
-                                            getString(R.string.message_packagename),
-                                            apkinfo[1]
-                                    )
-                            )
-                            .append(nl)
-                            .append(
-                                    String.format(
-                                            getString(R.string.message_version),
-                                            apkinfo[2],
-                                            apkinfo[3]
-                                    )
-                            )
-                            .append(nl);
+            String[] version = AppInfoUtil.getApplicationVersion(this, apkinfo[1]);
 
-                    if (version != null) {
-                        alertDialogMessage.append(
-                                String.format(
-                                        getString(R.string.message_version_existed),
-                                        version[0],
-                                        version[1]
-                                )
+            alertDialogMessage = new StringBuilder();
+            alertDialogMessage
+                    .append(nl)
+                    .append(
+                            String.format(
+                                    getString(R.string.message_name),
+                                    apkinfo[0]
+                            )
+                    )
+                    .append(nl)
+                    .append(
+                            String.format(
+                                    getString(R.string.message_packagename),
+                                    apkinfo[1]
+                            )
+                    )
+                    .append(nl)
+                    .append(
+                            String.format(
+                                    getString(R.string.message_version),
+                                    apkinfo[2],
+                                    apkinfo[3]
+                            )
+                    )
+                    .append(nl);
+
+            if (version != null) {
+                alertDialogMessage.append(
+                        String.format(
+                                getString(R.string.message_version_existed),
+                                version[0],
+                                version[1]
                         )
-                                .append(nl);
-                    }
+                )
+                        .append(nl);
+            }
 
-                    alertDialogMessage
-                            .append(
-                                    String.format(
-                                            getString(R.string.message_size),
-                                            apkinfo[4]
-                                    )
+            alertDialogMessage
+                    .append(
+                            String.format(
+                                    getString(R.string.message_size),
+                                    apkinfo[4]
                             )
-                            .append(nl);
+                    )
+                    .append(nl);
 
-                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
-                    builder.setTitle(getString(R.string.dialog_install_title));
 
-                    builder.setMessage(alertDialogMessage);
-                    View checkBoxView = View.inflate(this, R.layout.confirm_checkbox, null);
-                    builder.setView(checkBoxView);
-                    CheckBox checkBox = checkBoxView.findViewById(R.id.confirm_checkbox);
-                    if (source[1].equals(ILLEGALPKGNAME)) {
-                        checkBox.setText(getString(R.string.checkbox_installsource_unkonwn));
-                        checkBox.setEnabled(false);
-                    } else {
-                        checkBox.setText(String.format(getString(R.string.checkbox_always_allow), source[1]));
-                    }
+            View checkBoxView = View.inflate(this, R.layout.confirm_checkbox, null);
 
-                    builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
+            CheckBox checkBox = checkBoxView.findViewById(R.id.confirm_checkbox);
+            if (source[1].equals(ILLEGALPKGNAME)) {
+                checkBox.setText(R.string.checkbox_installsource_unkonwn);
+                checkBox.setEnabled(false);
+            } else {
+                checkBox.setText(String.format(getString(R.string.checkbox_always_allow), source[1]));
+            }
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setTitle(R.string.title_dialog_install)
+                    .setMessage(alertDialogMessage)
+                    .setView(checkBoxView)
+                    .setCancelable(false)
+                    .setNegativeButton(android.R.string.no, (dialog, which) -> finish())
+                    .setPositiveButton(android.R.string.yes, (dialog, which) -> {
                         cachePath = null;
                         if (!source[1].equals(ILLEGALPKGNAME)) {
                             editor = sourceSp.edit();
@@ -231,18 +242,12 @@ public abstract class AbstractInstallActivity extends Activity {
                         startInstall(validApkPath);
                         finish();
                     });
-                    builder.setNegativeButton(android.R.string.no, (dialog, which) -> finish());
 
-                    builder.setCancelable(false);
-                    alertDialog = builder.create();
-                    OpUtil.showAlertDialog(this, alertDialog);
-                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(20);
-                    alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(20);
-                }
-            } else {
-                startInstall(validApkPath);
-                finish();
-            }
+
+            alertDialog = builder.create();
+            OpUtil.showAlertDialog(this, alertDialog);
+            alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextSize(20);
+            alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE).setTextSize(20);
         }
 
     }
@@ -277,7 +282,6 @@ public abstract class AbstractInstallActivity extends Activity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
 
-        Log.e("resultData", "o " + resultData);
         if (requestCode == PICK_APK_FILE
                 && resultCode == Activity.RESULT_OK
                 && resultData != null) {
@@ -285,7 +289,7 @@ public abstract class AbstractInstallActivity extends Activity {
             uri = resultData.getData();
             initFromUri();
         } else {
-            Toast.makeText(this, R.string.tip_failed_get_content, Toast.LENGTH_SHORT).show();
+            showMyToast0(R.string.tip_failed_get_content);
             finish();
         }
 
@@ -374,20 +378,20 @@ public abstract class AbstractInstallActivity extends Activity {
         Objects.requireNonNull(clipboard).setPrimaryClip(clipData);
     }
 
-    void showToast0(final String text) {
+    void showMyToast0(final String text) {
         runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_SHORT).show());
     }
 
-    private void showToast0(final int stringId) {
+    private void showMyToast0(final int stringId) {
         runOnUiThread(() -> Toast.makeText(this, stringId, Toast.LENGTH_SHORT).show());
     }
 
-    void showToast1(final String text) {
+    void showMyToast1(final String text) {
         runOnUiThread(() -> Toast.makeText(this, text, Toast.LENGTH_LONG).show());
     }
 
-    void showToast1(final int stringId) {
-        runOnUiThread(() -> Toast.makeText(this, stringId, Toast.LENGTH_SHORT).show());
+    void showMyToast1(final int stringId) {
+        runOnUiThread(() -> Toast.makeText(this, stringId, Toast.LENGTH_LONG).show());
     }
 
     void deleteCache() {

@@ -16,6 +16,7 @@
         android:manageSpaceActivity=".activity.SettingsActivity"
         android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
         android:theme="@style/Translucent"
         tools:ignore="AllowBackup,GoogleAppIndexingWarning"
         tools:targetApi="q">
@@ -44,16 +45,7 @@
             </intent-filter>
         </activity-alias>
 
-        <activity
-            android:name=".activity.NotifyActivity"
-            android:noHistory="true"
-            android:theme="@style/Translucent">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
         <activity
             android:name=".activity.InstallActivity"
             android:configChanges="keyboardHidden|orientation|screenLayout|screenSize|smallestScreenSize|uiMode"
@@ -91,6 +83,17 @@
             android:theme="@style/Translucent">
             <intent-filter>
                 <action android:name="android.intent.action.SHOW_APP_INFO" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".activity.NotifyActivity"
+            android:noHistory="true"
+            android:theme="@style/Translucent">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

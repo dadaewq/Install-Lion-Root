@@ -8,12 +8,12 @@ import android.os.Message;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 
 import com.modosa.rootinstaller.R;
+import com.modosa.rootinstaller.util.OpUtil;
 import com.modosa.rootinstaller.util.shell.SuShell;
 
 import java.lang.ref.WeakReference;
@@ -111,11 +111,11 @@ public class SettingsFragment extends PreferenceFragment {
                     break;
                 case 2:
                     settingsFragment.show_root_state.setTitle(R.string.title_show_root_yes);
-                    Toast.makeText(settingsFragment.getActivity(), R.string.title_show_root_yes, Toast.LENGTH_SHORT).show();
+                    OpUtil.showToast0(settingsFragment.getActivity(), R.string.title_show_root_yes);
                     break;
                 case -1:
                     settingsFragment.show_root_state.setTitle(R.string.title_show_root_no_click2request);
-                    Toast.makeText(settingsFragment.getActivity(), R.string.installer_error_root_no_root, Toast.LENGTH_SHORT).show();
+                    OpUtil.showToast0(settingsFragment.getActivity(), R.string.installer_error_root_no_root);
                     break;
                 default:
 

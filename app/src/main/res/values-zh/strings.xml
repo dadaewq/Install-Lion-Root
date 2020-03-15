@@ -10,14 +10,14 @@
     <string name="tip_success_uninstall">%1$s 卸载成功</string>
     <string name="tip_failed_uninstall">%1$s 卸载失败</string>
     <string name="tip_failed_uninstall_witherror">%1$s 卸载失败,错误已复制到剪贴板\n%2$s</string>
-    <string name="dialog_install_title">安装</string>
-    <string name="dialog_uninstall_title">卸载</string>
+    <string name="title_dialog_install">安装</string>
+    <string name="title_dialog_uninstall">卸载</string>
     <string name="message_size">大小：%1$s</string>
     <string name="message_name">名称：%1$s</string>
     <string name="message_packagename">包名：%1$s</string>
     <string name="message_version">版本：%1$s(%2$s)</string>
     <string name="message_version_existed">现存：%1$s(%2$s)</string>
-    <string name="message_uninstalConfirm">此操作不可撤销\n确认卸载吗?</string>
+    <string name="message_irrevocableConfirm">此操作不可撤销\n确认卸载吗?</string>
     <string name="checkbox_always_allow">总是允许 %1$s</string>
     <string name="checkbox_installsource_unkonwn">未知安装来源</string>
     <string name="installer_error_shell">%1$s 安装器错误:\n\n%2$s</string>

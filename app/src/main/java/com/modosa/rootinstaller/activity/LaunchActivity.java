@@ -6,9 +6,10 @@ import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
+
+import com.modosa.rootinstaller.util.OpUtil;
 
 
 /**
@@ -33,7 +34,7 @@ public class LaunchActivity extends Activity {
                 Intent intent = getPackageManager().getLaunchIntentForPackage(packagename);
                 startActivity(intent);
             } catch (Exception e) {
-                Toast.makeText(this, e + "", Toast.LENGTH_LONG).show();
+                OpUtil.showToast1(this, e + "");
             }
         }
     }

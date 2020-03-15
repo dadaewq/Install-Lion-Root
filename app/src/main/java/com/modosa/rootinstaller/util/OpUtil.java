@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
 import android.view.Window;
+import android.widget.Toast;
 
 import com.modosa.rootinstaller.R;
 
@@ -55,7 +56,6 @@ public class OpUtil {
                 is.close();
             }
         } catch (IOException e) {
-            Log.e("createApkFromUri", " " + e);
             e.printStackTrace();
         }
 
@@ -135,7 +135,22 @@ public class OpUtil {
             dirFile.delete();
 
         }
-
-
     }
+
+    public static void showToast0(Context context, final String text) {
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void showToast0(Context context, final int stringId) {
+        Toast.makeText(context, stringId, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void showToast1(Context context, final String text) {
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void showToast1(Context context, final int stringId) {
+        Toast.makeText(context, stringId, Toast.LENGTH_SHORT).show();
+    }
+
 }

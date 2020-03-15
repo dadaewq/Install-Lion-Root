@@ -10,14 +10,14 @@
     <string name="tip_success_uninstall">%1$s Uninstalled succeed</string>
     <string name="tip_failed_uninstall">%1$s Uninstalled failed</string>
     <string name="tip_failed_uninstall_witherror">%1$s Uninstalled failed,The error has been copied to the clipboard\n%2$s</string>
-    <string name="dialog_install_title">Installation</string>
-    <string name="dialog_uninstall_title">Uninstallation</string>
+    <string name="title_dialog_install">Installation</string>
+    <string name="title_dialog_uninstall">Uninstallation</string>
     <string name="message_size">Size：%1$s</string>
     <string name="message_name">Name: %1$s</string>
     <string name="message_packagename">Package Name: %1$s</string>
     <string name="message_version">Version: %1$s (%2$s)</string>
     <string name="message_version_existed">Existed: %1$s (%2$s)</string>
-    <string name="message_uninstalConfirm">This operation is irrevocable\nConfirm uninstallation?</string>
+    <string name="message_irrevocableConfirm">This operation is irrevocable\nConfirm uninstallation?</string>
     <string name="checkbox_always_allow">Always Allow %1$s</string>
     <string name="checkbox_installsource_unkonwn">Unknown installation source</string>
     <string name="installer_error_shell">%s installer error:\n\n%s</string>

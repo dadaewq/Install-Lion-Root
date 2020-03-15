@@ -9,7 +9,6 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -73,29 +72,20 @@ public class SettingsActivity extends Activity {
         return true;
     }
 
-    private void startPickFile() {
-        Intent intent = new Intent(OpUtil.MODOSA_ACTION_PICK_FILE);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.setClass(this, InstallActivity.class);
-        startActivity(intent);
-    }
-
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-            long intervals = 2000;
-            if ((System.currentTimeMillis() - exitTime) > intervals) {
-                Toast.makeText(this, getString(R.string.tip_exit), Toast.LENGTH_SHORT).show();
-                exitTime = System.currentTimeMillis();
-            } else {
-                finish();
-                System.exit(0);
-            }
-            return true;
+    public void onBackPressed() {
+        long currentTime = System.currentTimeMillis();
+        if ((currentTime - exitTime) < 2000) {
+            super.onBackPressed();
+        } else {
+            showMyToast0(R.string.tip_exit);
+            exitTime = currentTime;
         }
-        return super.onKeyDown(keyCode, event);
+    }
+
+    private void showMyToast0(final int stringId) {
+        runOnUiThread(() -> Toast.makeText(this, stringId, Toast.LENGTH_SHORT).show());
     }
 
     private void showDialogHideIcon() {
@@ -123,24 +113,6 @@ public class SettingsActivity extends Activity {
 
     }
 
-
-    private void showDialogClearCache() {
-        String cachePath = Objects.requireNonNull(getExternalCacheDir()).getAbsolutePath();
-        String cacheSize = FileSizeUtil.getAutoFolderOrFileSize(cachePath);
-        if (EMPTY_SIZE.equals(cacheSize)) {
-            Toast.makeText(this, R.string.tip_empty_cache, Toast.LENGTH_SHORT).show();
-        } else {
-            Log.e("cacheSize", cacheSize);
-            AlertDialog.Builder builder = new AlertDialog.Builder(this)
-                    .setTitle(R.string.ClearCache)
-                    .setMessage(String.format(getString(R.string.message_ClearCache), cacheSize))
-                    .setNeutralButton(android.R.string.no, null)
-                    .setPositiveButton(android.R.string.yes, (dialog, which) -> OpUtil.deleteDirectory(cachePath));
-
-            AlertDialog alertDialog = builder.create();
-            OpUtil.showAlertDialog(this, alertDialog);
-        }
-    }
 
     private void showDialogClearAllowedList() {
 
@@ -170,5 +142,29 @@ public class SettingsActivity extends Activity {
 
     }
 
+    private void showDialogClearCache() {
+        String cachePath = Objects.requireNonNull(getExternalCacheDir()).getAbsolutePath();
+        String cacheSize = FileSizeUtil.getAutoFolderOrFileSize(cachePath);
+        if (EMPTY_SIZE.equals(cacheSize)) {
+            showMyToast0(R.string.tip_empty_cache);
+        } else {
+            Log.e("cacheSize", cacheSize);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this)
+                    .setTitle(R.string.ClearCache)
+                    .setMessage(String.format(getString(R.string.message_ClearCache), cacheSize))
+                    .setNeutralButton(android.R.string.no, null)
+                    .setPositiveButton(android.R.string.yes, (dialog, which) -> OpUtil.deleteDirectory(cachePath));
+
+            AlertDialog alertDialog = builder.create();
+            OpUtil.showAlertDialog(this, alertDialog);
+        }
+    }
+
+    private void startPickFile() {
+        Intent intent = new Intent(OpUtil.MODOSA_ACTION_PICK_FILE);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.setClass(this, InstallActivity.class);
+        startActivity(intent);
+    }
 
 }
